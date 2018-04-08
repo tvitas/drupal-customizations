@@ -6,6 +6,4 @@
 - Ubercart 3.x (optional)
 - Drupal 7.x :)
 
-#### Licence:
-
-Use without restrictions. Free for all.
+#### Unlicensed
