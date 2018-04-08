@@ -1,0 +1,12 @@
+name = Ubercart AJAX Cart (Alternative)
+description = An alternative AJAX cart designed for cached sites in mind.
+package = "Ubercart - extra"
+core = 7.x
+dependencies[] = uc_cart
+
+; Information added by Drupal.org packaging script on 2016-06-16
+version = "7.x-1.7+8-dev"
+core = "7.x"
+project = "uc_ajax_cart_alt"
+datestamp = "1466088154"
+

@@ -1,0 +1,80 @@
+<?php
+function uc_catalog_actions_action_info() {
+	return array(
+		'uc_catalog_actions_change_category_action' => array(
+		'type' => 'node',
+		'label' => t('Add/remove category to product node'),
+		'configurable' => TRUE,
+		'triggers' => array(
+			'nodeapi' => array('update'),
+			),
+		),
+	);
+}
+
+function uc_catalog_actions_change_category_action($node, $context = array()) {
+	//$exploded = explode('_', $context['value']);
+	$tid = intval($context['value']);
+	$nid = intval($context['node'] -> nid);
+	if (!empty($tid) && !empty($nid)) {
+		$node = node_load($nid);
+		switch ($context['operation']) {
+			case 'add': {
+				array_push($node -> field_category['und'], array('tid' => $tid));
+				break;
+			}
+			case 'remove': {
+				foreach ($node->field_category['und'] as $index => $cat) {
+					if ($cat['tid'] == $tid) {
+						unset($node->field_category['und'][$index]);
+					}
+				}
+				break;
+			}
+		}
+		node_save($node);
+	}
+}
+
+
+function uc_catalog_actions_change_category_action_form($context) {
+    $form['catalog_operation'] = array(
+      '#title' => t('Add or Remove term'),
+      '#type' => 'select',
+      '#options' => array('add' => t('Add'), 'remove' => t('Remove')),
+      '#multiple' => FALSE,
+      '#description' => t('Please select Add or Remove'),
+    );
+    $form['catalog_value'] = array(
+      '#title' => t('Value'),
+      '#type' => 'select',
+      '#description' => t('Select a term to add/remove'),
+      '#options' => _uc_catalog_actions_get_categories_options(),
+      '#multiple' => FALSE,
+    );
+	$form['#attached']['js'] = array(
+		drupal_get_path('module', 'uc_catalog_actions') . '/uc_catalog_actions.js',
+	);
+	return $form;
+}
+
+function uc_catalog_actions_change_category_action_validate($form, &$form_state) {
+	return true;
+}
+
+function uc_catalog_actions_change_category_action_submit($form, $form_state) {
+	$values['operation'] = $form_state['values']['catalog_operation'];
+	$values['value'] = $form_state['values']['catalog_value'];
+	return $values;
+}
+
+function _uc_catalog_actions_get_categories_options() {
+	$list = array();
+	$terms = taxonomy_get_tree(taxonomy_vocabulary_machine_name_load('content_tree') -> vid);
+	foreach ($terms as $term) {
+		$depth = count(taxonomy_get_parents_all($term -> tid));
+		$list[$term -> tid] = str_repeat('-', $depth-1) . $term -> name;
+	}
+	return $list;
+}
+

@@ -1,0 +1,8 @@
+<?php
+// $Id: uc_2checkout.install,v 1.5 2010/07/15 20:32:39 islandusurper Exp $
+
+function uc_webtopay_uninstall() {
+  db_delete('variable')
+    ->condition('name', 'uc_webtopay_%', 'LIKE')
+    ->execute();
+}

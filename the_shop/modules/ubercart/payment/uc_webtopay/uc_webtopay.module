@@ -1,0 +1,177 @@
+<?php
+
+function uc_webtopay_menu() {
+	$items = array();
+
+	$items['cart/webtopay/complete'] = array(
+    	'title'				=> 'Order complete',
+    	'page callback'		=> 'uc_webtopay_complete',
+    	'access callback'	=> 'uc_webtopay_completion_access',
+    	'type'				=> MENU_CALLBACK,
+    	'file'				=> 'uc_webtopay.pages.inc',
+	);
+
+	return $items;
+}
+
+function uc_webtopay_init() {
+	global $conf;
+	$conf['i18n_variables'][] = 'uc_webtopay_method_title';
+	$conf['i18n_variables'][] = 'uc_webtopay_checkout_button';
+}
+
+function uc_webtopay_completion_access() {
+	return TRUE;
+}
+
+function uc_webtopay_form_alter(&$form, &$form_state, $form_id) {
+	if ($form_id == 'uc_cart_checkout_review_form' && ($order_id = intval($_SESSION['cart_order'])) > 0) {
+    	$order = uc_order_load($order_id);
+    if ($order->payment_method == 'webtopay') {
+		drupal_add_css(drupal_get_path('module', 'uc_webtopay') . '/uc_webtopay.css');
+		$checkout = drupal_get_form('uc_webtopay_form', $order);
+		unset($form['actions']['submit']);
+		$form['#prefix'] = drupal_render($checkout);
+    }
+  }
+}
+
+function uc_webtopay_uc_payment_method() {
+	$path = base_path() . drupal_get_path('module', 'uc_webtopay');
+	$title = variable_get('uc_webtopay_method_title', t('WebToPay.com:'));
+
+	if(variable_get('uc_webtopay_method_title_icons',false)) {
+		$title .= '<div><img src="' . $path . '/icon_paysera.png" /></div>';
+	}
+
+	$methods[] = array(
+		'id'			=> 'webtopay',
+    	'name'			=> t('WebToPay'),
+    	'title' 		=> $title,
+    	'review' 		=> t('Pay by online check'),
+    	'desc' 			=> t('Redirect to www.webtopay.com .'),
+    	'callback' 		=> 'uc_payment_method_webtopay',
+    	'weight' 		=> 3,
+    	'checkout' 		=> TRUE,
+    	'no_gateway'	=> TRUE,
+	);
+
+	return $methods;
+}
+
+function uc_payment_method_webtopay($op, &$order, $form = NULL, &$form_state = NULL) {
+  switch ($op) {
+
+    case 'cart-details':
+		$build['instructions'] = array('#markup' => _t('_pay_via_paysera_lt_', 'Nukreipsime į PaySera.lt'));
+	return $build;
+
+    case 'cart-process':  // cart/checkout -> cart/checkout/review
+		//$_SESSION['pay_method'] = $form_state['values']['panes']['payment']['details']['pay_method'];
+		$_SESSION['pay_method'] = 'webtopay';
+	return;
+
+	/*
+	case 'order-save':    // cart/checkout -> cart/checkout/review
+
+    break;
+    */
+
+    case 'settings':
+      $form['uc_webtopay_sid'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Project ID'),
+        '#description' => t('Your WebToPay.com project ID.'),
+        '#default_value' => variable_get('uc_webtopay_sid', ''),
+        '#size' => 16,
+      );
+      $form['uc_webtopay_secret_word'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Project password:'),
+        '#description' => t('Your WebToPay.com project password.'),
+        '#default_value' => variable_get('uc_webtopay_secret_word', ''),
+        '#size' => 32,
+      );
+      $form['uc_webtopay_demo'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enable test payment mode.'),
+        '#default_value' => variable_get('uc_webtopay_demo', TRUE),
+      );
+      $form['uc_webtopay_method_title'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Payment method title'),
+        '#default_value' => variable_get('uc_webtopay_method_title', t('WebToPay.com')),
+      );
+      $form['uc_webtopay_method_title_icons'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Show WebToPay.com logo under the payment method title.'),
+        '#default_value' => variable_get('uc_webtopay_method_title_icons', TRUE),
+      );
+      $form['uc_webtopay_checkout_button'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Order review submit button text'),
+        '#description' => t('Provide specific text for the submit button on the order review page.'),
+        '#default_value' => variable_get('uc_webtopay_checkout_button', t('Pay via webtopay.com')),
+      );
+
+      return $form;
+  }
+}
+
+function uc_webtopay_form($form, &$form_state, $order) {
+
+	global $language;
+	$acceptURL		=	url('cart/webtopay/complete/', array('absolute' => TRUE)).'?accept&order_id=' . $order->order_id;
+	$cancelURL		=	url('cart/checkout/review/', array('absolute' => TRUE));
+	$callbackURL	=	url('cart/webtopay/complete/', array('absolute' => TRUE)).'?callback';
+	$countryCode	= 	uc_get_country_data(array('country_id' => $order->billing_country));
+
+	require('libwebtopay/WebToPay.php');
+	try {
+		$request = WebToPay::buildRequest(array(
+			'projectid'     => variable_get('uc_webtopay_sid', ''),
+			'sign_password' => variable_get('uc_webtopay_secret_word', ''),
+
+			'orderid'       => $order->order_id,
+ 			'amount'        => $order->order_total * 100,
+			'currency'      => variable_get('uc_currency_code', ''),
+			'lang'          => ($language->language !== 'lt') ? 'ENG' : 'LIT',
+
+			'accepturl'     => $acceptURL,
+			'cancelurl'     => $cancelURL,
+			'callbackurl'   => $callbackURL,
+			'payment'       => '',
+			'country'       => 'LT',
+
+			'logo'          => '',
+			'p_firstname'   => $order->delivery_first_name,
+			'p_lastname'    => $order->delivery_last_name,
+			'p_email'       => $order->primary_email,
+			'p_street'      => $order->delivery_street1,
+			'p_city'        => $order->delivery_city,
+			'p_state'       => '',
+			'p_zip'         => $order->delivery_postal_code,
+			'p_countrycode' => $countryCode[0]['country_iso_code_2'],
+			'test'          => (variable_get('uc_webtopay_demo', TRUE)) ? 1 : 0,
+		));
+	}
+	catch (WebToPayException $e) {
+		//echo get_class($e).': '.$e->getMessage();
+		drupal_set_message(get_class($e).': '.$e->getMessage(), 'error');
+	}
+
+	$form['#action'] = 'https://www.webtopay.com/pay/';
+
+	foreach ($request as $name => $value) {
+		$form[$name] = array('#type' => 'hidden', '#value' => $value);
+	}
+
+	$form['actions'] = array('#type' => 'actions');
+	$form['actions']['submit'] = array(
+		'#type'		=> 'submit',
+	    '#value'	=> variable_get('uc_webtopay_checkout_button', t('Submit Order')),
+	    '#attributes' => array('class' => array('uk-button-success', 'uk-button-large')),
+	);
+
+	return $form;
+}

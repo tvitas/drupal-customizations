@@ -1,0 +1,7 @@
+name = Ubercart catalog actions
+description = Provides bulk add, remove actions for adding or removing products to/from catalog categories
+dependences[] = uc_product
+package = Ubercart - fulfillment
+core = 7.x
+
+

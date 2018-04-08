@@ -1,0 +1,254 @@
+<?php
+/**
+ * @file
+ * Integrates user profile fields into cart checkout form.
+ */
+
+/**
+ * Implements hook_schema_alter().
+ */
+
+function uc_profile_fields_schema_alter(&$schema) {
+	$schema['uc_orders']['fields']['company_requisites'] = array(
+		'type' => 'text',
+		'not null' => TRUE,
+		'default' => '',
+		'description' => 'Company requisites data',);
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ *
+ * Make sure that our form alter is called AFTER the same hook provided in xxx
+ */
+function uc_profile_fields_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'form_FORM_ID_alter') {
+    // Move uc_profile_fields to the end of the list. module_implements()
+    // iterates through $implementations with a foreach loop which PHP iterates
+    // in the order that the items were added, so to move an item to the end of
+    // the array, we remove it and then add it.
+    $group = $implementations['uc_profile_fields'];
+    unset($implementations['uc_profile_fields']);
+    $implementations['uc_profile_fields'] = $group;
+  }
+}
+
+/**
+ * Provides user profile fields on cart checkout form.
+ *
+ */
+
+function uc_profile_fields_form_uc_cart_checkout_form_alter(&$form, &$form_state, $form_id) {
+	global $user;
+/*
+	uc_address - user profile fields mapping
+	$delivery_fields = array(
+					'delivery_phone' => 'field_phone_no',
+					'delivery_first_name' => 'field_firstname',
+					'delivery_last_name' => 'field_lastname',
+					'delivery_street1' => 'field_street_address',
+					'delivery_city' => 'field_city',
+					'delivery_company' => 'field_company_title',
+					);
+*/
+	$field_company_number = array(
+					'#type' => 'textfield',
+					'#title' => t('Company number'),
+					'#size' => 32,
+					'#maxlength' => 128,
+					'#theme' => 'textfield',
+					'#id' => 'edit-panes-delivery-delivery-company-number',
+					'#name' => 'panes[delivery][delivery_company_number]',
+					'#theme_wrappers' => array('form_element'),
+					'#default_value' => '',
+					'#weight' => -9,
+					);
+	$field_company_vat_number = array(
+					'#type' => 'textfield',
+					'#title' => t('Company VAT number'),
+					'#size' => 32,
+					'#maxlength' => 128,
+					'#theme' => 'textfield',
+					'#id' => 'edit-panes-delivery-delivery-company-vat-number',
+					'#name' => 'panes[delivery][delivery_company_vat_number]',
+					'#theme_wrappers' => array('form_element'),
+					'#default_value' => '',
+					'#weight' => -8,
+					);
+/*add additional fields to delivery address pane*/
+	if (isset($form['panes']['delivery']['address']['#default_value'])) {
+		$form['panes']['delivery']['delivery_company_number'] = $field_company_number;
+		$form['panes']['delivery']['delivery_company_vat_number'] = $field_company_vat_number;
+	}
+	if ($user -> uid) {
+		$user_profile_fields = user_load($user->uid);
+		$form['panes']['customer']['email_text']['#markup'] = $user -> mail;
+		if (isset($form['panes']['delivery']['address']['#default_value'])) {
+			if (isset($user_profile_fields -> field_phone_no['und'][0]['value'])) {
+				$form['panes']['delivery']['address']['#default_value'] -> delivery_phone = $user_profile_fields -> field_phone_no['und'][0]['value'];
+			}
+			if (isset($user_profile_fields -> field_firstname['und'][0]['value'])) {
+				$form['panes']['delivery']['address']['#default_value'] -> delivery_first_name = $user_profile_fields -> field_firstname['und'][0]['value'];
+			}
+			if (isset($user_profile_fields -> field_lastname['und'][0]['value'])) {
+				$form['panes']['delivery']['address']['#default_value'] -> delivery_last_name = $user_profile_fields -> field_lastname['und'][0]['value'];
+			}
+			if (isset($user_profile_fields -> field_street_address['und'][0]['value'])) {
+				$form['panes']['delivery']['address']['#default_value'] -> delivery_street1 = $user_profile_fields -> field_street_address['und'][0]['value'];
+			}
+			if (isset($user_profile_fields -> field_city['und'][0]['value'])) {
+				$form['panes']['delivery']['address']['#default_value'] -> delivery_city = $user_profile_fields -> field_city['und'][0]['value'];
+			}
+			if (isset($user_profile_fields -> field_company_title['und'][0]['value'])) {
+				$form['panes']['delivery']['address']['#default_value'] -> delivery_company = $user_profile_fields -> field_company_title['und'][0]['value'];
+			}
+			if (isset($user_profile_fields -> field_company_number['und'][0]['value'])) {
+				$form['panes']['delivery']['delivery_company_number']['#default_value'] = $user_profile_fields -> field_company_number['und'][0]['value'];
+			}
+			if (isset($user_profile_fields -> field_company_vat_number['und'][0]['value'])) {
+				$form['panes']['delivery']['delivery_company_vat_number']['#default_value'] = $user_profile_fields -> field_company_vat_number['und'][0]['value'];
+			}
+		}
+	}
+	$form['#submit'][] = 'uc_profile_fields_checkout_submit';
+	$form['#validate'][] = 'uc_profile_fields_checkout_form_validate';
+}
+
+function uc_profile_fields_uc_order_pane() {
+  $panes['company_requisites'] = array(
+    'callback' => 'uc_profile_fields_company_requisites_pane',
+    'title' => t('Company requisites'),
+    'desc' => t('Company requisites data.'),
+    'class' => 'pos-left',
+    'weight' => 2,
+    'show' => array('view', 'edit'),
+  );
+  return $panes;
+}
+
+function uc_profile_fields_company_requisites_pane($op, $order, &$form = NULL, &$form_state = NULL) {
+	switch ($op) {
+		case 'view': {
+			return array('#markup' => nl2br($order -> company_requisites));
+			break;
+		}
+		case 'edit-form': {
+			$form['company_requisites_field'] = array(
+					'#type' => 'textarea',
+					'#description' => t('Company requisites data'),
+					'#default_value' => $order -> company_requisites,);
+			return $form;
+			break;
+		}
+		case 'edit-theme': {
+			$output = drupal_render($form['company_requisites_field']);
+			return $output;
+			break;
+		}
+		case 'edit-process': {
+			$changes['company_requisites'] = $form_state['values']['company_requisites_field'];
+			return $changes;
+			break;
+		}
+	}
+}
+
+/**
+ * Checks company number, company vat number input logic
+ *
+ */
+
+function uc_profile_fields_checkout_form_validate($form, &$form_state) {
+	if (!empty($form_state['values']['panes']['delivery']['delivery_company'])) {
+		if (empty($form_state['values']['panes']['delivery']['delivery_company_number'])) {
+			$form_state['checkout_valid'] = FALSE;
+			drupal_set_message(_t('_no_company_number_', t('Company title field is filled in, but no company number is entered. Enter a company number or do not fill the company title field.')), 'error', TRUE);
+		}
+	}
+	if ((!empty($form_state['values']['panes']['delivery']['delivery_company_number'])
+	|| !empty($form_state['values']['panes']['delivery']['delivery_company_vat_number']))
+	&& empty($form_state['values']['panes']['delivery']['delivery_company'])) {
+		$form_state['checkout_valid'] = FALSE;
+		drupal_set_message(_t('_no_company_title_', t('Company number or VAT number field is filled in, but no company title is entered. Enter a company title or do not fill the company number/VAT number fields.')), 'error', TRUE);
+	}
+}
+
+/**
+ *
+ * Updates uc_order table with company requisites field
+ *
+ */
+
+function uc_profile_fields_checkout_submit($form, &$form_state) {
+	if (($order_id = intval($_SESSION['cart_order'])) > 0) {
+		$order = uc_order_load($order_id);
+		$data = $order -> data;
+		$requisites_string = '';
+		if (!empty($form_state['values']['panes']['delivery']['delivery_company'])) {
+			if (!empty($form_state['values']['panes']['delivery']['delivery_company_number'])) {
+				$requisites_string .= $form_state['values']['panes']['delivery']['delivery_company_number'] . "\n";
+				$data['company_requisites']['company_number'] = $form_state['values']['panes']['delivery']['delivery_company_number'];
+			}
+			if (!empty($form_state['values']['panes']['delivery']['delivery_company_vat_number'])) {
+				$requisites_string .= $form_state['values']['panes']['delivery']['delivery_company_vat_number'] . "\n";
+				$data['company_requisites']['company_vat_number'] = $form_state['values']['panes']['delivery']['delivery_company_vat_number'];
+			}
+		}
+		$order -> company_requisites = $requisites_string;
+		$order -> data = $data;
+		$records = db_update('uc_orders')
+		->fields(array('company_requisites' => $requisites_string, 'data' => serialize($data),))
+		->condition('order_id', $order_id, '=')
+		->execute();
+	}
+}
+
+/*
+ * Updates user profile fields for new user
+ *
+ */
+
+function uc_profile_fields_uc_checkout_complete($order, $account) {
+	$edit = array();
+	$order_company_number = '';
+	$order_company_vat_number = '';
+	$user_profile = user_load($account->uid);
+	$order_firstname = $order -> delivery_first_name;
+	$order_lastname = $order -> delivery_last_name;
+	$order_street_address = $order -> delivery_street1;
+	$order_city = $order -> delivery_city;
+	$order_company_title = $order -> delivery_company;
+	$order_phone_no = $order -> delivery_phone;
+	$order_company_requisites_array = explode("\n", $order -> company_requisites);
+	if (isset($order_company_requisites_array[0])) {
+		$order_company_number = $order_company_requisites_array[0];
+	}
+	if (isset($order_company_requisites_array[1])) {
+		$order_company_vat_number = $order_company_requisites_array[1];
+	}
+	if (!isset($user_profile -> field_firstname['und'][0]['value'])) {
+		$edit['field_firstname']['und'][0]['value'] = $order_firstname;
+	}
+	if (!isset($user_profile -> field_lastname['und'][0]['value'])) {
+		$edit['field_lastname']['und'][0]['value'] = $order_lastname;
+	}
+	if (!isset($user_profile -> field_street_address['und'][0]['value'])) {
+		$edit['field_street_address']['und'][0]['value'] = $order_street_address;
+	}
+	if (!isset($user_profile -> field_city['und'][0]['value'])) {
+		$edit['field_city']['und'][0]['value'] = $order_city;
+	}
+	if (!isset($user_profile -> field_phone_no['und'][0]['value'])) {
+		$edit['field_phone_no']['und'][0]['value'] = $order_phone_no;
+	}
+	if (!isset($user_profile -> field_company_title['und'][0]['value'])) {
+		$edit['field_company_title']['und'][0]['value'] = $order_company_title;
+	}
+	if (!isset($user_profile -> field_company_number['und'][0]['value'])) {
+		$edit['field_company_number']['und'][0]['value'] = $order_company_number;
+	}
+	if (!isset($user_profile -> field_company_vat_number['und'][0]['value'])) {
+		$edit['field_company_vat_number']['und'][0]['value'] = $order_company_vat_number;
+	}
+	user_save($user_profile, $edit);
+}

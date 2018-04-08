@@ -1,0 +1,137 @@
+<?php
+define("TSH_NOT_IN_LT", "You have selected delivery country not Lithuania, so delivery price will be accepted by separate agreement. We will contact with you as soon as possible.");
+
+function uc_the_shop_helpers_uc_get_message_alter($messages) {
+	$messages['checkout_instructions'] = _t('_checkout_instructions_');
+	$messages['review_instructions'] = _t('_review_instructions_');
+	$messages['completion_message'] = _t('_completion_message_');
+	$messages['completion_logged_in'] = _t('_completion_logged_in_');
+	$messages['completion_existing_user'] = _t('_completion_existing_user_');
+	$messages['completion_new_user'] =  _t('_completion_new_user_');
+	$messages['continue_shopping'] = _t('_continue_shoping_msg_');
+	return $messages;
+}
+
+
+/*
+ * Provides data for back button
+ */
+//function uc_the_shop_helpers_page_build(&$page) {
+//	$_SESSION['LAST_URI'] = $_SERVER['HTTP_REFERER'];
+//}
+
+/*
+ * Set the stock level to 1
+ */
+function uc_the_shop_helpers_node_insert($node) {
+	if (($node -> type == 'product_type_accessories') || ($node -> type == 'product_type_file') || ($node -> type == 'product_type_other')) {
+		$result = db_query('SELECT active, stock, threshold FROM {uc_product_stock} WHERE nid = :nid AND sku = :sku', array(':nid' => $node->nid, ':sku' => $node->model));
+		$record = $result->fetchAssoc();
+		if (empty($record)) {
+			$fields = array('sku' => $node->model, 'nid' => $node->nid, 'active' => 1, 'stock' => 1, 'threshold' => 0);
+			db_insert('uc_product_stock')->fields($fields)->execute();
+		}
+	}
+}
+
+
+function uc_the_shop_helpers_form_alter(&$form, &$form_state, $form_id) {
+	if (($form_id == 'product_type_accessories_node_form') || ($form_id == 'product_type_other_node_form') || ($form_id == 'product_type_file_node_form')) {
+		$form['#attached']['js'] = array(
+			drupal_get_path('module', 'uc_the_shop_helpers') . '/the_shop_helpers.js',
+		);
+	}
+	if ($form_id == 'uc_cart_checkout_form') {
+		$form['#validate'][] = 'uc_the_shop_helpers_checkout_form_validate';
+		if (isset($form['#process'][0])) {
+			unset($form['#process'][0]);
+		}
+		if (isset($form['panes']['delivery']['select_address'])) {
+			unset($form['panes']['delivery']['select_address']);
+		}
+		$form['panes']['uc_termsofservice_agreement_checkout']['tos_text']['#markup'] = '<ul class="links inline"><li class="node-readmore first last"><a href="/pirkimo-salygos-ir-taisykles-0" rel="tag" title="Pirkimo sąlygos ir taisyklės">Daugiau</a></li>';
+	}
+	if ($form_id == 'user_profile_form') {
+		if (isset($form['#token'])) {
+			unset($form['#token']);
+		}
+	}
+}
+
+/**
+ * Validate function for checkout, if required by our configuration.
+ *
+ * This way, we can display a better 'required' message than the default
+ * Form API message for a required element.
+ * Fields to check:
+ * ['values']['panes']['customer']['primary_email']
+ * ['values']['panes']['delivery']['delivery_first_name']
+ * ['values']['panes']['delivery']['delivery_last_name']
+ * ['values']['panes']['delivery']['delivery_company']
+ * ['values']['panes']['delivery']['delivery_street1']
+ * ['values']['panes']['delivery']['delivery_city']
+ * ['values']['panes']['delivery']['delivery_phone']
+ * ['values']['panes']['delivery']['delivery_country'] !== 440: not  LT
+ * ['values']['panes']['payment']['payment_method']
+ * vals: check - cash in place; cod, other, webtopay
+ *['values']['panes']['quotes']['quotes']['quote_option']
+ * vals: flatrate, flatrate_terminals, weightquote
+ */
+
+function uc_the_shop_helpers_checkout_form_validate($form, &$form_state) {
+//Check country. If not LT, set message and continue.
+//Order's save in this case implemented in uc_the_shop_helpers_uc_order()
+	if (isset($form_state['values']['panes']['delivery'])) {
+		if (isset($form_state['values']['panes']['delivery']['delivery_country'])) {
+			if ($form_state['values']['panes']['delivery']['delivery_country'] !== '440') {
+				drupal_set_message(_t('_delivery_outside_lt_', t(TSH_NOT_IN_LT)), 'error', TRUE);
+			}
+		}
+//Check address
+		if (isset($form['panes']['delivery']['address']['#default_value'])) {
+			if (empty($form_state['values']['panes']['delivery']['delivery_first_name'])
+						|| empty($form_state['values']['panes']['delivery']['delivery_last_name'])
+						|| empty($form_state['values']['panes']['delivery']['delivery_city'])
+						|| empty($form_state['values']['panes']['delivery']['delivery_phone'])
+						|| empty($form_state['values']['panes']['delivery']['delivery_street1'])) {
+				$form_state['checkout_valid'] = FALSE;
+				drupal_set_message(_t('_address_fields_empty_', t('Neužpildyti adreso laukeliai.')), 'error', TRUE);
+			}
+		}
+	}
+
+//Check combination of payment by check and weightquote. It's not possible.
+	if (isset($form_state['values']['panes']['quotes']['quotes'])) {
+		if (strstr($form_state['values']['panes']['quotes']['quotes']['quote_option'], 'weightquote')) {
+			if ($form_state['values']['panes']['payment']['payment_method'] == 'check') {
+				$form_state['checkout_valid'] = FALSE;
+				drupal_set_message(_t('_payment_check_is_not_possible_', t('Payment by check is not possible. Please select another delivery or payment method.')), 'error', TRUE);
+			}
+		}
+	}
+}
+
+function uc_the_shop_helpers_uc_order($op, $order, $arg2) {
+	$message = t(TSH_NOT_IN_LT);
+	switch ($op) {
+		case 'submit': {
+			if ($order -> delivery_country !== '440') {
+				uc_order_comment_save($order -> order_id, 0, $message, 'order', $order -> order_status, $notify = FALSE);
+			}
+		}
+		case 'save': {
+			if ($order -> delivery_country !== '440') {
+				db_update('uc_orders')
+					->fields(array('payment_method' => 'other', 'flatrate_terminal' => ''))
+					->condition('order_id', $order -> order_id, '=')
+					->execute();
+
+				$and = db_and()->condition('order_id', $order -> order_id)->condition('type', 'shipping');
+
+				db_delete('uc_order_line_items')
+					->condition($and)
+					->execute();
+			}
+		}
+	}
+}

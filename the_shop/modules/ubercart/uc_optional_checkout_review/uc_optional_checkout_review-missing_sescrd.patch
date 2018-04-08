@@ -1,0 +1,14 @@
+diff --git a/uc_optional_checkout_review.module b/uc_optional_checkout_review.module
+index e5e0f70..eac7183 100644
+--- a/uc_optional_checkout_review.module
++++ b/uc_optional_checkout_review.module
+@@ -36,6 +36,9 @@ function uc_optional_checkout_review_uc_cart_checkout_form_submit($form, &$form_
+     $order = uc_order_load($_SESSION['cart_order']);
+     $form_state['values']['op'] = t('Submit order');
+     $form_state['uc_order'] = $order;
++    if (module_exists('uc_credit') && isset($_SESSION['sescrd'])) {
++      $_POST['sescrd'] = base64_encode($_SESSION['sescrd']);
++    }
+     drupal_form_submit('uc_cart_checkout_review_form', $form_state);
+     $form_state['programmed'] = FALSE;
+   }
