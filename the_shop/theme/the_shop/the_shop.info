@@ -1,0 +1,51 @@
+name = A. THE SHOP
+description = Just The Shop theme
+core = 7.x
+;REGIONS
+regions[page_menu]             = 'Page menu'
+regions[front_slider]          = 'Front Slider'
+regions[language_switcher]     = 'Language Switcher'
+regions[cart_block_top]        = 'Cart block'
+regions[cart_block_sidebar]    = 'Cart block in sidebar'
+regions[highlighted]           = 'Highlighted'
+regions[content]               = 'Content'
+regions[related]               = 'Related'
+regions[search_form]           = 'Search form'
+regions[footer_zone]           = 'Footer Zone'
+regions[hidden_region]         = 'Hidden Region'
+
+;SCRIPTS
+scripts[] = js/the_shop.js
+scripts[] = js/uikit/uikit.agregated.js
+;scripts[] = js/uikit/uikit.min.js
+;scripts[] = js/uikit/core/smooth-scroll.min.js
+;scripts[] = js/uikit/core/scrollspy.min.js
+;scripts[] = js/uikit/core/offcanvas.min.js
+;scripts[] = js/uikit/core/modal.min.js
+;scripts[] = js/uikit/core/dropdown.min.js
+;scripts[] = js/uikit/components/grid.min.js
+;scripts[] = js/uikit/components/sticky.min.js
+;scripts[] = js/uikit/components/slideshow.min.js
+;scripts[] = js/uikit/components/slideshow-fx.min.js
+;scripts[] = js/uikit/components/slideset.min.js
+;scripts[] = js/uikit/components/slider.min.js
+;scripts[] = js/uikit/components/accordion.min.js
+;scripts[] = js/uikit/components/lightbox.min.js
+;scripts[] = js/uikit/components/notify.min.js
+
+;STYLESHEETS
+;UIKIT GRADIENT STYLE
+;stylesheets[all][] = uikit/uikit.gradient.min.css
+
+;UIKIT ALMOST FLAT STYLE
+;stylesheets[all][] = uikit/uikit.almost-flat.min.css
+
+;UIKIT DEFAULT STYLE
+stylesheets[all][] = uikit/uikit.agregated.css
+
+;THE SHOP STYLE
+stylesheets[all][] = the_shop.min.css
+
+;SETTINGS
+settings[dev_mode]  = 0
+

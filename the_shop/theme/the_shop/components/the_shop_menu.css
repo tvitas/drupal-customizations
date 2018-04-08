@@ -1,0 +1,110 @@
+/* Side Menu */
+#sidebar-wrapper {
+    z-index: 1000;
+    position: fixed;
+    left: 0;
+    width: 250px;
+	height: 100%;
+    margin-left: -250px;
+    overflow-y: auto;
+    background: #ddd;
+    -webkit-transition: all 0.4s ease 0s;
+    -moz-transition: all 0.4s ease 0s;
+    -ms-transition: all 0.4s ease 0s;
+    -o-transition: all 0.4s ease 0s;
+    transition: all 0.4s ease 0s;
+}
+
+#sidebar-wrapper.active {
+    left: 250px;
+    width: 250px;
+	border: solid 1px #005aab;
+/*
+	box-shadow: inset -1px 0px 1px rgba(0,0,0,0.5);
+	-webkit-box-shadow: inset -1px 0px 1px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset -1px 0px 1px rgba(0,0,0,0.5);
+	-o-box-shadow: inset -1px 0px 1px rgba(0,0,0,0.5);
+	-ms-box-shadow: inset -1px 0px 1px rgba(0,0,0,0.5);
+*/
+    -webkit-transition: all 0.4s ease 0s;
+    -moz-transition: all 0.4s ease 0s;
+    -ms-transition: all 0.4s ease 0s;
+    -o-transition: all 0.4s ease 0s;
+    transition: all 0.4s ease 0s;
+}
+
+/*PAGE MENU*/
+ul li.leaf {
+    list-style-image: none;
+    list-style-type: none;
+}
+
+ul.menu li {
+    margin: 0;
+}
+li.expanded, li.collapsed, li.leaf {
+    padding-left: 15px;
+    margin: 0;
+    float: left;
+}
+
+li.expanded a, li.collapsed a, li.leaf a {
+	color: #666;
+}
+
+ul.menu {
+	list-style: none;
+	text-align: left;
+	margin: 0;
+	padding-left: 0;
+}
+
+ul.menu li.first {
+	padding-left: 0;
+}
+
+.uk-dropdown-sidebar {
+	border: 1px solid #005aab;
+	border-left: none;
+	width: 100% !important;
+	max-width: 250px !important;
+	background: #333;
+}
+
+.uk-dropdown-sidebar a {
+	color: #ccc;
+}
+
+.uk-dropdown-footer {
+	border: 1px solid #ccc;
+	width: 320px !important;
+	max-width: 320px !important;
+    max-height: 360px;
+	box-shadow: 0 0 15px #bbb;
+	background-image: url('img/noise-white-pattern.jpg');
+	background-position: top left;
+	background-repeat: repeat;
+}
+
+.uk-dropdown-default {
+/*	background: #fffffc;*/
+	width: 89.5% !important;
+	max-width: 1200px !important;
+	border: 1px solid #005aab;
+	border-top: solid 1px #ccc;
+    max-height: 480px;
+background: #dddddd; /* Old browsers */
+background: -moz-linear-gradient(top, #dddddd 0%, #ededed 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top, #dddddd 0%,#ededed 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom, #dddddd 0%,#ededed 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dddddd', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+}
+
+.tree-level-0 {
+	margin-bottom: 5px;
+	font-weight: 600;
+}
+
+.uk-dropdown-scrollable {
+	max-height: 420px;
+}

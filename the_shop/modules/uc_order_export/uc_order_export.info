@@ -1,0 +1,8 @@
+name = Ubercart order export
+description = Provides actions to export uc_order to xml, csv in allparcels.com formats
+dependences[] = uc_order
+dependences[] = uc_flatrate_terminals
+package = Ubercart - fulfillment
+core = 7.x
+
+

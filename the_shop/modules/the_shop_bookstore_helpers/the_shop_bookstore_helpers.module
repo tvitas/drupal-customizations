@@ -1,0 +1,25 @@
+<?php
+/*SOME VARS IN STORE CONFIG*/
+function the_shop_bookstore_helpers_variable_info($options) {
+	$variables['uc_store_operator_address'] = array(
+				'type' => 'text',
+				'title' => t('Store operator address', array(), $options),
+				'description' => t('Store operator address.', array(), $options),
+				'localize' => TRUE,
+				'default' => t('Store operator address', array(), $options),);
+	return $variables;
+}
+
+
+function the_shop_bookstore_helpers_form_alter(&$form, &$form_state, $form_id) {
+	/*ADD SOME VARS IN STORE CONFIG*/
+	if ($form_id == 'uc_store_settings_form') {
+		$form['requisites']['uc_store_operator_address'] = array(
+			'#type' => 'textarea',
+			'#title' => t('Operator address'),
+			'#description' => t('Store operator\'s address.'),
+			'#default_value' => variable_get('uc_store_operator_address',''),
+			'#weight' => 0,
+		);
+	}
+}

@@ -1,0 +1,5 @@
+name = The Shop theme helpers for ubercart
+description = Provides helper functions for the shop theme
+core = 7.x
+
+

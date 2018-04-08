@@ -1,0 +1,62 @@
+/*NICE TAXONOMY MENU IN OFFCANVAS BAR*/
+.uk-nav ul a {
+    padding: 5px;
+	display: block;
+}
+
+.offcanvas-menu-wrapper {
+	width: 90%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.offcanvas-menu-wrapper ul[id^="ntm-menu-"] {
+	display: none;
+}
+
+.link-div,
+.caret-div {
+	display: block;
+	float: left;
+	margin-bottom: 5px;
+}
+
+.link-div {
+	width: 80%;
+}
+
+.caret-div {
+	width: 20%;
+	text-align: center;
+}
+
+.caret-div a::after {
+	font-family: fontawesome;
+	content: "\f067"; /*fa-plus*/
+}
+
+.caret-div a.expandend::after {
+	font-family: fontawesome;
+	content: "\f068"; /*fa-minus*/
+}
+
+
+.link-div a,
+.caret-div a {
+	display: block;
+	padding: 5px;
+}
+
+.link-div a:hover,
+.link-div a:focus,
+.caret-div a:hover,
+.caret-div a:focus  {
+	background: #444;
+	text-decoration: none;
+}
+
+.caret-div a.active,
+.link-div a.active {
+	color: green;
+}
+

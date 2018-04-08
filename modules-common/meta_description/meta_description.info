@@ -1,0 +1,5 @@
+name = Meta Description
+description = Provides meta description tag for taxonomy term and node
+core = 7.x
+
+

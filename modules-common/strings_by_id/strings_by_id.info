@@ -1,0 +1,5 @@
+name = Strings by ID
+description = Provides function _t and helper functions for interface translation. Alternative to "translate interface".
+core = 7.x
+
+

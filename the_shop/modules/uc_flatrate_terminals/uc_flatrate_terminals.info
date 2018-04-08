@@ -1,0 +1,11 @@
+name = Flat rate terminals
+description = Assigns a rates as module uc_flatrate plus provide terminals list of courier.
+dependencies[] = uc_quote
+dependences[] = uc_order
+package = Ubercart - fulfillment
+core = 7.x
+
+configure = admin/store/settings/quotes/methods
+;All parcels LP EXPRESS: http://toast.allparcels.com/api/parcel_terminals.json?courier=LP_EXPRESS
+
+

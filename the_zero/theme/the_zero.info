@@ -1,0 +1,96 @@
+name = A. THE ZERO
+description = Just The Theme. Important: we don't use the menu system in this theme. All menus is generating from taxonomy terms (taxonomy vocabularies "Content tree" and "Menu tree").
+core = 7.x
+
+;;;;;;;;;
+;REGIONS;
+;;;;;;;;;
+
+regions[page_menu]             = 'Page menu'
+regions[front_slider]          = 'Front Slider'
+regions[language_switcher]     = 'Language Switcher'
+regions[content]               = 'Content'
+regions[related]               = 'Related'
+regions[search_form]           = 'Search form'
+regions[footer_zone]           = 'Footer Zone'
+regions[marquee]               = 'Marquee'
+regions[hidden_region]         = 'Hidden Region'
+
+;;;;;;;;;
+;SCRIPTS;
+;;;;;;;;;
+
+scripts[] = js/the_zero.js
+
+;;;;;;;;;
+;SCRIPTS;
+;;;;;;;;;
+
+scripts[] = js/uikit/uikit.js
+scripts[] = js/uikit/core/smooth-scroll.min.js
+scripts[] = js/uikit/core/scrollspy.min.js
+scripts[] = js/uikit/components/grid.min.js
+scripts[] = js/uikit/components/sticky.min.js
+scripts[] = js/uikit/components/slideshow.min.js
+scripts[] = js/uikit/components/slideshow-fx.min.js
+scripts[] = js/uikit/components/slideset.min.js
+scripts[] = js/uikit/components/slider.min.js
+;scripts[] = js/uikit/components/parallax.min.js
+scripts[] = js/uikit/components/accordion.min.js
+scripts[] = js/uikit/components/lightbox.min.js
+scripts[] = js/uikit/components/notify.min.js
+
+;;;;;;;;;;;;;
+;STYLESHEETS;
+;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;
+;UIKIT GRADIENT STYLE;
+;;;;;;;;;;;;;;;;;;;;;;
+
+;stylesheets[all][] = uikit/uikit.gradient.min.css
+;stylesheets[all][] = uikit/components/progress.gradient.min.css
+;stylesheets[all][] = uikit/components/sticky.gradient.min.css
+;stylesheets[all][] = uikit/components/slideshow.gradient.min.css
+;stylesheets[all][] = uikit/components/slider.gradient.min.css
+;stylesheets[all][] = uikit/components/slidenav.gradient.min.css
+;stylesheets[all][] = uikit/components/accordion.gradient.min.css
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;UIKIT ALMOST FLAT STYLE;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;stylesheets[all][] = uikit/uikit.almost-flat.min.css
+;stylesheets[all][] = uikit/components/progress.almost-flat.min.css
+;stylesheets[all][] = uikit/components/sticky.almost-flat.min.css
+;stylesheets[all][] = uikit/components/slideshow.almost-flat.min.css
+;stylesheets[all][] = uikit/components/slider.almost-flat.min.css
+;stylesheets[all][] = uikit/components/slidenav.almost-flat.min.css
+;stylesheets[all][] = uikit/components/accordion.almost-flat.min.css
+
+;;;;;;;;;;;;;;;;;;;;;
+;UIKIT DEFAULT STYLE;
+;;;;;;;;;;;;;;;;;;;;;
+
+stylesheets[all][] = uikit/uikit.min.css
+stylesheets[all][] = uikit/components/progress.min.css
+stylesheets[all][] = uikit/components/sticky.min.css
+stylesheets[all][] = uikit/components/slideshow.min.css
+stylesheets[all][] = uikit/components/slider.min.css
+stylesheets[all][] = uikit/components/slidenav.min.css
+stylesheets[all][] = uikit/components/notify.min.css
+stylesheets[all][] = uikit/components/slideset.min.css
+stylesheets[all][] = uikit/components/accordion.min.css
+
+
+stylesheets[all][] = the_zero_style.css
+stylesheets[all][] = the_zero_navbar.css
+stylesheets[all][] = the_zero_menu.css
+stylesheets[all][] = the_zero_slide_show.css
+stylesheets[all][] = the_zero_topmost.css
+stylesheets[all][] = the_zero_system.css
+
+;;;;;;;;;;
+;SETTINGS;
+;;;;;;;;;;
+settings[dev_mode]            = 0

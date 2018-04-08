@@ -1,0 +1,200 @@
+<?php
+
+function uc_profile_fields_install() {
+	$db_field = array('type' => 'text',
+			'not null' => TRUE,
+			'default' => '',
+			'description' => 'Company requisites data',);
+	db_add_field('uc_orders', 'company_requisites', $db_field);
+	_uc_profile_fields_manage_fields('create');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+
+
+function uc_profile_fields_uninstall() {
+	db_drop_field('uc_orders', 'company_requisites');
+	_uc_profile_fields_manage_fields('delete');
+}
+
+/**
+ * Manage custom user profile fields
+ * $op = 'create' - creates
+ * $op = 'delete' - delets
+ */
+
+
+function _uc_profile_fields_manage_fields($op = 'create') {
+
+	switch ($op) {
+		case 'create': {
+			//1. User profile field_first_name if !exists
+			if (!field_info_field('field_firstname')) {
+				$field = array(
+						'field_name' => 'field_firstname',
+						'type' => 'text',
+						);
+				field_create_field($field);
+				$instance = array(
+					'field_name' => 'field_firstname',
+					'entity_type' => 'user',
+					'label' => 'First name',
+					'bundle' => 'user',
+					'required' => TRUE,
+					'settings' => array('user_register_form' => 1,),
+					'widget' => array('type' => 'textfield',),
+					);
+				field_create_instance($instance);
+			}
+
+			//2. User profile field_lastname if !exists
+			if (!field_info_field('field_lastname')) {
+				$field = array(
+						'field_name' => 'field_lastname',
+						'type' => 'text',
+						);
+				field_create_field($field);
+				$instance = array(
+						'field_name' => 'field_lastname',
+						'entity_type' => 'user',
+						'label' => 'Last name',
+						'bundle' => 'user',
+						'required' => TRUE,
+						'settings' => array('user_register_form' => 1,),
+						'widget' => array('type' => 'textfield',),
+						);
+				field_create_instance($instance);
+			}
+
+			//3. User profile field_street_address if !exists
+			if (!field_info_field('field_street_address')) {
+				$field = array(
+						'field_name' => 'field_street_address',
+						'type' => 'text',
+						);
+				field_create_field($field);
+				$instance = array(
+						'field_name' => 'field_street_address',
+						'entity_type' => 'user',
+						'label' => 'Street address',
+						'bundle' => 'user',
+						'required' => FALSE,
+						'settings' => array('user_register_form' => 1,),
+						'widget' => array('type' => 'textfield',),
+						);
+				field_create_instance($instance);
+			}
+
+			//4. User profile field_city if !exists
+			if (!field_info_field('field_city')) {
+				$field = array(
+						'field_name' => 'field_city',
+						'type' => 'text',
+						);
+				field_create_field($field);
+				$instance = array(
+						'field_name' => 'field_city',
+						'entity_type' => 'user',
+						'label' => 'City',
+						'bundle' => 'user',
+						'required' => FALSE,
+						'settings' => array('user_register_form' => 1,),
+						'widget' => array('type' => 'textfield',),
+						);
+				field_create_instance($instance);
+			}
+
+			//5. User profile field_phone_no if !exists
+			if (!field_info_field('field_phone_no')) {
+				$field = array(
+						'field_name' => 'field_phone_no',
+						'type' => 'text',
+						);
+				field_create_field($field);
+				$instance = array(
+						'field_name' => 'field_phone_no',
+						'entity_type' => 'user',
+						'label' => 'Phone No',
+						'bundle' => 'user',
+						'required' => FALSE,
+						'settings' => array('user_register_form' => 1,),
+						'widget' => array('type' => 'textfield',),
+						);
+				field_create_instance($instance);
+			}
+
+
+			//6. User profile field_company_title if !exists
+			if (!field_info_field('field_company_title')) {
+				$field = array(
+						'field_name' => 'field_company_title',
+						'type' => 'text',
+						);
+				field_create_field($field);
+				$instance = array(
+						'field_name' => 'field_company_title',
+						'entity_type' => 'user',
+						'label' => 'Company',
+						'bundle' => 'user',
+						'required' => FALSE,
+						'settings' => array('user_register_form' => 1,),
+						'widget' => array('type' => 'textfield',),
+						);
+				field_create_instance($instance);
+			}
+
+			//7. User profile field_company_number if !exists
+			if (!field_info_field('field_company_number')) {
+				$field = array(
+						'field_name' => 'field_company_number',
+						'type' => 'text',
+						);
+				field_create_field($field);
+				$instance = array(
+						'field_name' => 'field_company_number',
+						'entity_type' => 'user',
+						'label' => 'Company number',
+						'bundle' => 'user',
+						'required' => FALSE,
+						'settings' => array('user_register_form' => 1,),
+						'widget' => array('type' => 'textfield',),
+						);
+				field_create_instance($instance);
+			}
+
+			//8. User profile field_company_vat_number if !exists
+			if (!field_info_field('field_company_vat_number')) {
+				$field = array(
+						'field_name' => 'field_company_vat_number',
+						'type' => 'text',
+						);
+				field_create_field($field);
+				$instance = array(
+						'field_name' => 'field_company_vat_number',
+						'entity_type' => 'user',
+						'label' => 'Company VAT number',
+						'bundle' => 'user',
+						'required' => FALSE,
+						'settings' => array('user_register_form' => 1,),
+						'widget' => array('type' => 'textfield',),
+						);
+				field_create_instance($instance);
+			}
+			break;
+		}
+		case 'delete': {
+			field_delete_field('field_street_address');
+			field_delete_field('field_city');
+			field_delete_field('field_phone_no');
+			field_delete_field('field_firstname');
+			field_delete_field('field_lastname');
+			field_delete_field('field_company_title');
+			field_delete_field('field_company_number');
+			field_delete_field('field_company_vat_number');
+			field_purge_batch(8);
+			break;
+		}
+	}
+}

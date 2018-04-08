@@ -1,0 +1,5 @@
+name = TSFB helpers
+description = Provides misc theme's "The Shop" helper functions for bookstore
+core = 7.x
+
+

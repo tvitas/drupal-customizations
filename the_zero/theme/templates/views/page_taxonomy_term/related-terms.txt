@@ -1,0 +1,11 @@
+I've done a little tweaking myself, and I seem to have gotten a working solution here.
+
+    Create a new block
+    Contextual Filters > Content: Nid, Provide default value: Content ID from URL (not entirely sure if this is necessary in this situation)
+    Relations: Taxonomy terms on node, select the desired Taxonomy Vocabulary here
+    Relations: Taxonomy Term: content using taxonomy selected in step 3, Make this relationship required
+    To exclude the current node: Contextual Filters > Provide default value: Content ID from URL, More > Exclude
+
+Now when you add fields you can select the relationship via a dropdown, and this should be the Taxonomy Term.
+
+If you get double items, change your query sections in the advanced column to select Distinct values

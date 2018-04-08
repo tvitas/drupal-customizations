@@ -1,0 +1,305 @@
+<?php
+/*ADD REGISTRATION FORM TO GOOGLE RECAPTCHA*/
+function the_zero_helpers_google_recaptcha_always_protect_alter(&$always_protected) {
+  $always_protected[] = 'course_registration_form_node_form';
+}
+
+function the_zero_helpers_google_recaptcha_available_forms_alter(&$available_forms) {
+  // Add search form to the list of always protected forms.
+  $always_protected['course_registration_form_node_form'] = t('Association registration form');
+}
+
+function the_zero_helpers_variable_info($options) {
+  // Site configuration, site information
+	$variables['site_abbreviation'] = array(
+		'type' => 'text',
+		'title' => t('Site abbreviation', array(), $options),
+		'default' => '',
+		'description' => t("Using on small screens.", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_owner_title'] = array(
+		'type' => 'text',
+		'title' => t('Site owner`s title', array(), $options),
+		'default' => '',
+		'description' => t("Data for default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_owner_phone'] = array(
+		'type' => 'text',
+		'title' => t('Site owner`s phone', array(), $options),
+		'default' => '',
+		'description' => t("Data for default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_owner_cell_phone'] = array(
+		'type' => 'text',
+		'title' => t('Site owner`s mobile', array(), $options),
+		'default' => '',
+		'description' => t("Data for default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_owner_fax'] = array(
+		'type' => 'text',
+		'title' => t('Site owner`s fax', array(), $options),
+		'default' => '',
+		'description' => t("Data for default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_owner_address'] = array(
+		'type' => 'text',
+		'title' => t('Site owner`s address', array(), $options),
+		'default' => '',
+		'description' => t("Data for default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_owner_email'] = array(
+		'type' => 'text',
+		'title' => t('Site owner`s e-mail', array(), $options),
+		'default' => '',
+		'description' => t("Data for easy default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_owner_url'] = array(
+		'type' => 'text',
+		'title' => t('Site owner`s web URL', array(), $options),
+		'default' => '',
+		'description' => t("Data for default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+
+	$variables['site_operator_title'] = array(
+		'type' => 'text',
+		'title' => t('Site operator`s title', array(), $options),
+		'default' => '',
+		'description' => t("Data for default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_operator_phone'] = array(
+		'type' => 'text',
+		'title' => t('Site operator`s phone', array(), $options),
+		'default' => '',
+		'description' => t("Data for default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_operator_cell_phone'] = array(
+		'type' => 'text',
+		'title' => t('Site operator`s mobile', array(), $options),
+		'default' => '',
+		'description' => t("Data for default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_operator_fax'] = array(
+		'type' => 'text',
+		'title' => t('Site operator`s fax', array(), $options),
+		'default' => '',
+		'description' => t("Data for default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_operator_address'] = array(
+		'type' => 'text',
+		'title' => t('Site operator`s address', array(), $options),
+		'default' => '',
+		'description' => t("Data for default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+
+	$variables['site_operator_email'] = array(
+		'type' => 'text',
+		'title' => t('Site operator`s e-mail', array(), $options),
+		'default' => '',
+		'description' => t("Data for easy default footer", array(), $options),
+		'localize' =>  true,
+		'group' => 'site_information',
+	);
+  return $variables;
+}
+
+function the_zero_helpers_form_alter(&$form, &$form_state, $form_id) {
+
+	if ($form_id == 'article_node_form' || $form_id == 'article_static_node_form') {
+		$form['#attached']['js'] = array(
+			drupal_get_path('module', 'the_zero_helpers') . '/the_zero_helpers.js',
+		);
+	}
+
+	if ($form_id == 'course_registration_form_node_form') {
+		$form['title']['#required'] = FALSE;
+	}
+
+	if ($form_id == 'system_site_information_settings') {
+		$form['site_information']['site_abbreviation'] = array(
+			'#type'          => 'textfield',
+			'#title'         => t('Site abbreviation'),
+			'#description'   => t('Site abbreviation. Using on small screens.'),
+			'#default_value' => variable_get('site_abbreviation', ''),
+		);
+		$form['site_information']['site_operator'] = array(
+			'#type' => 'fieldset',
+			'#title' => 'Site Operator',
+			'#description' => t('Site operator data'),
+				'site_operator_title' => array(
+				'#type'          => 'textfield',
+				'#title'         => t('Operator title'),
+				'#description'   => t('Site operator`s title'),
+				'#default_value' => variable_get('site_operator_title', '')),
+
+				'site_operator_phone' => array(
+				'#type'          => 'textfield',
+				'#title'         => t('Phone #'),
+				'#description'   => t('Site operator`s contact phone number'),
+				'#default_value' => variable_get('site_operator_phone', '')),
+
+				'site_operator_cell_phone' => array(
+				'#type'          => 'textfield',
+				'#title'         => t('Cellular phone #'),
+				'#description'   => t('Site operator`s contact cellular phone Number'),
+				'#default_value' => variable_get('site_operator_cell_phone', '')),
+
+				'site_operator_fax' => array(
+				'#type'          => 'textfield',
+				'#title'         => t('Fax #'),
+				'#description'   => t('Site operator`s contact fax number'),
+				'#default_value' => variable_get('site_operator_fax', '')),
+
+				'site_operator_email' => array(
+				'#type'          => 'textfield',
+				'#title'         => t('Operator e-mail'),
+				'#description'   => t('Site operator`s contact e-mail'),
+				'#default_value' => variable_get('site_operator_email', '')),
+
+				'site_operator_address' => array(
+				'#type'          => 'textarea',
+				'#title'         => t('Operator address'),
+				'#description'   => t('Site operator`s residence address'),
+				'#default_value' => variable_get('site_operator_address', '')),
+
+			);
+		$form['site_information']['site_owner'] = array(
+			'#type' => 'fieldset',
+			'#title' => 'Site Owner',
+			'#description' => t('Site owner data'),
+
+				'site_owner_title' => array(
+				'#type'          => 'textfield',
+				'#title'         => t('Owner title'),
+				'#description'   => t('Site owner`s title'),
+				'#default_value' => variable_get('site_owner_title', '')),
+
+				'site_owner_phone' => array(
+				'#type'          => 'textfield',
+				'#title'         => t('Phone #'),
+				'#description'   => t('Site owner`s contact phone number'),
+				'#default_value' => variable_get('site_owner_phone', '')),
+
+				'site_owner_cell_phone' => array(
+				'#type'          => 'textfield',
+				'#title'         => t('Cellular phone #'),
+				'#description'   => t('Site owner`s contact cellular phone Number'),
+				'#default_value' => variable_get('site_owner_cell_phone', '')),
+
+				'site_owner_fax' => array(
+				'#type'          => 'textfield',
+				'#title'         => t('Fax #'),
+				'#description'   => t('Site owner`s contact fax number'),
+				'#default_value' => variable_get('site_owner_fax', '')),
+
+				'site_owner_email' => array(
+				'#type'          => 'textfield',
+				'#title'         => t('Owner e-mail'),
+				'#description'   => t('Site owner`s contact e-mail'),
+				'#default_value' => variable_get('site_owner_email', '')),
+
+				'site_owner_address' => array(
+				'#type'          => 'textarea',
+				'#title'         => t('Owner address'),
+				'#description'   => t('Site owner`s residence address'),
+				'#default_value' => variable_get('site_owner_address', '')),
+
+				'site_owner_web' => array(
+				'#type'          => 'textfield',
+				'#title'         => t('Owner URL'),
+				'#description'   => t('Site owner`s full URL with http(s):// prefix'),
+				'#default_value' => variable_get('site_owner_web', '')),
+
+		);
+	}
+	if ($form_id == 'contact_site_form') {
+		$form['phone_number'] = array(
+			'#type' => 'textfield',
+			'#title' => t('Your phone number'),
+			'#description' => t('Please enter your phone number.'),
+			'#weight' => 0.1,
+			'#required' => FALSE,
+			'#access' => FALSE,
+		);
+		$order = array('name', 'mail', 'phone_number', 'subject', 'cid', 'message', 'copy', 'actions');
+		foreach ($order as $k => $v) {
+			$form[$v]['#weight'] = $k;
+		}
+	}
+}
+
+/*CONTACT FORM MAIL BODY ALTER*/
+function the_zero_helpers_mail_alter(&$message) {
+	if ($message['id'] == 'contact_user_mail' || $message['id'] == 'contact_user_copy' || $message['id'] == 'contact_page_mail') {
+		$params = $message['params'];
+		$variables = array('!site-name' => variable_get('site_name', 'Drupal'),
+						   '!sender-name' => format_username($params['sender']));
+		$message['body'] = array();
+		$message['body'][0] = $variables['!sender-name'] . ' [' . $params['mail'] . '][' . $params['phone_number'] . '] ' . strtolower(_t('_from_', 'Iš')) . ' ' . $variables['!site-name'] . ' ' . strtolower(_t('_sent_message_', 'Atsiuntė žinutę')) . ': ';
+		$message['body'][1] = $message['params']['message'];
+	}
+}
+
+/*GENERATE NODE TITLE ON REGISTRATION FORMS*/
+function the_zero_helpers_node_presave($node) {
+	if ($node->type == 'course_registration_form') {
+		if ($node->is_new) {
+			$node->title = _t('_course_registration_form_', node_type_get_name($node)) . ' ' . date('Y-m-d H:m:s');
+		}
+	}
+}
+
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function the_zero_helpers_element_info_alter(&$type) {
+  $type['radios']['#process'][] = '_remove_radio_na';
+  $type['select']['#process'][] = '_remove_radio_na';
+}
+
+/**
+ * Removes the '_none' option from a form element.
+ */
+function _remove_radio_na($element) {
+  unset($element['#options']['_none']);
+  unset($element['_none']);
+  return $element;
+}

@@ -1,0 +1,179 @@
+/*NAVBAR ON FRONT PAGE*/
+#uk-navbar-front {
+	-webkit-box-shadow: 0 3px 5px -3px #000;
+	-moz-box-shadow: 0 3px 5px -3px #000;
+	box-shadow: 0 3px 5px -3px #000;
+}
+
+.uk-navbar {
+    background: #009dd8;
+    color: white;
+}
+
+/*HAMBURGER*/
+#uk-navbar-front .uk-navbar-toggle {
+    font-size: 24px;
+    color: white;
+    text-decoration: none;
+}
+
+/*SITE NAME*/
+#uk-navbar-front .uk-navbar-brand {
+    font-size: 16px;
+    color: white;
+    text-decoration: none;
+}
+
+#uk-navbar-front .uk-navbar-brand a {
+    font-size: 16px;
+    color: white;
+    text-decoration: none;
+}
+
+#uk-navbar-front .uk-navbar-brand a:hover,
+#uk-navbar-front .uk-navbar-brand a:focus,
+#uk-navbar-front .uk-navbar-brand a:active {
+ 	text-decoration: underline;
+	outline: 0;
+}
+
+#uk-navbar-front .uk-navbar-brand img {
+    width: auto;
+    max-height: 32px;
+    box-sizing: border-box;
+    border: 0;
+    vertical-align: middle;
+    padding: 5px;
+}
+/*Default h1*/
+h1.navbar-brand-title {
+  font-size: 16px;
+  text-decoration: none;
+  float: right;
+  margin: 0;
+  color: white;
+}
+
+/*NAVIGATION LINKS*/
+#uk-navbar-front .uk-navbar-nav > li > a {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: none;
+    height: 40px;
+    padding: 0 15px;
+    line-height: 40px;
+    color: #fff;
+    font-size: 16px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 400;
+}
+
+#uk-navbar-front .uk-navbar-nav > li > a:hover,
+#uk-navbar-front .uk-navbar-nav > li > a:focus,
+#uk-navbar-front .uk-navbar-nav > li > a:active,
+#uk-navbar-front .uk-navbar-nav > li > a:visited {
+ 	background: #00b4f5;
+	outline: 0;
+}
+
+.uk-navbar-nav > li.uk-active > a {
+    background-color: #00b4f5;
+}
+
+/*LANG SWITCHER NAV*/
+
+#uk-navbar-front ul.language-switcher-locale-url,
+#uk-navbar-front span.locale-untranslated {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    float: left;
+}
+
+#uk-navbar-front ul.language-switcher-locale-url > li {
+    float: left;
+    position: relative;
+}
+
+#uk-navbar-front ul.language-switcher-locale-url > li:first-child {
+	border-left: solid 1px #fff;
+}
+
+#uk-navbar-front ul.language-switcher-locale-url > li > a {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: none;
+    height: 40px;
+    padding: 0 15px;
+    line-height: 40px;
+    color: #fff;
+    font-size: 14px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 400;
+}
+
+#uk-navbar-front ul.language-switcher-locale-url > li > span.locale-untranslated {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: line-through;
+    height: 40px;
+    padding: 0 15px;
+    line-height: 40px;
+    color: #fff;
+    font-size: 14px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 400;
+}
+
+#uk-navbar-front ul.language-switcher-locale-url > li > a:hover,
+#uk-navbar-front ul.language-switcher-locale-url > li > a:focus,
+#uk-navbar-front ul.language-switcher-locale-url > li > a:active {
+ 	background: #00b4f5;
+	outline: 0;
+}
+
+/*LANG SWITCHER OFFCANVAS*/
+#offcanvas-bar ul.language-switcher-locale-url {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#offcanvas-bar ul.language-switcher-locale-url > li {
+    float: left;
+    position: relative;
+}
+
+#offcanvas-bar ul.language-switcher-locale-url > li > a {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: none;
+    height: 40px;
+    padding: 0 15px;
+    line-height: 40px;
+    color: #ccc;
+    font-size: 14px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 400;
+}
+
+#offcanvas-bar ul.language-switcher-locale-url > li > a:hover,
+#offcanvas-bar ul.language-switcher-locale-url > li > a:focus,
+#offcanvas-bar ul.language-switcher-locale-url > li > a:active {
+ 	background: #404040;
+	color: White;
+	outline: 0;
+}
+
+#offcanvas-bar ul.language-switcher-locale-url > li > span.locale-untranslated {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: line-through;
+    height: 40px;
+    padding: 0 15px;
+    line-height: 40px;
+    color: #666;
+    font-size: 14px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 400;
+}

@@ -1,0 +1,264 @@
+/*NAVBAR CATEGORIES*/
+#uk-navbar-categories .uk-navbar {
+	background: #2b7bb7;
+	-webkit-box-shadow: 0 3px 5px -3px #000;
+	-moz-box-shadow: 0 3px 5px -3px #000;
+	box-shadow: 0 3px 5px -3px #000;
+}
+
+
+/*HAMBURGER*/
+#uk-navbar-categories .uk-navbar-toggle {
+    font-size: 20px;
+    color: #f5f5f5;
+    text-decoration: none;
+}
+
+#uk-navbar-categories .uk-navbar-toggle:hover,
+#uk-navbar-categories .uk-navbar-toggle:focus {
+	background: #489cd4;
+}
+
+/*ALL CATEGORIES*/
+#uk-navbar-categories .navbar-nav-all-products {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    float: left;
+}
+
+#uk-navbar-categories .navbar-nav-all-products > li > a {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: none;
+    height: 40px;
+    padding: 0 15px;
+    line-height: 40px;
+    color: #f5f5f5;
+    font-size: 16px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 500;
+    background: #b20000;
+}
+
+#uk-navbar-categories .navbar-nav-all-products > li.uk-open > a,
+#uk-navbar-categories .navbar-nav-all-products > li:hover > a,
+#uk-navbar-categories .navbar-nav-all-products > li > a:focus,
+#uk-navbar-categories .navbar-nav-all-products > li.uk-active > a {
+    background: #e4354f;
+    color: #f5f5f5;
+    outline: 0;
+}
+
+/*CART BLOCK ON SMALL DEVICES*/
+#cart-block-small {
+    box-sizing: border-box;
+    display: block;
+    height: 40px;
+    padding: 0 15px;
+}
+
+#cart-block-small .cart-total {
+	line-height: 40px;
+	color: #f5f5f5;
+}
+
+#cart-block-small .cart-total i,
+#cart-block-small .cart-total a,
+#cart-block-small .cart-total a:hover,
+#cart-block-small .cart-total a:focus {
+	color: #f5f5f5;
+}
+
+/*SITE NAME*/
+#uk-navbar-categories .uk-navbar-brand {
+    font-size: 14px;
+    color: #eee;
+    text-decoration: none;
+}
+
+#uk-navbar-categories .uk-navbar-brand a {
+    font-size: 14px;
+    color: #eee;
+    text-decoration: none;
+}
+
+#uk-navbar-categories .uk-navbar-brand a:hover,
+#uk-navbar-categories .uk-navbar-brand a:focus,
+#uk-navbar-categories .uk-navbar-brand a:active {
+ 	text-decoration: underline;
+	outline: 0;
+}
+
+#uk-navbar-categories .uk-navbar-brand img {
+    width: auto;
+    max-height: 32px;
+    box-sizing: border-box;
+    border: 0;
+    vertical-align: middle;
+    padding: 5px;
+}
+
+/*CATEGORIES NAVIGATION LINKS*/
+#uk-navbar-categories .uk-navbar-nav > li > a {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: none;
+    height: 40px;
+    padding: 0 15px;
+    line-height: 40px;
+    color: #f5f5f5;
+    font-size: 16px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 500;
+}
+
+#uk-navbar-categories .uk-navbar-nav > li.uk-open > a,
+#uk-navbar-categories .uk-navbar-nav > li:hover > a,
+#uk-navbar-categories .uk-navbar-nav > li > a:focus,
+#uk-navbar-categories .uk-navbar-nav > li.uk-active > a {
+    background-color: #489cd4;
+    color: #f5f5f5;
+    outline: 0;
+}
+
+
+/*NAVBAR MENU*/
+#uk-navbar-menu .uk-navbar {
+	background: #00a8e6;
+	height: 25px;
+	min-height: 25px;
+	max-height: 25px;
+}
+
+/*MENU NAVIGATION LINKS*/
+#uk-navbar-menu .uk-navbar-nav > li > a {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: none;
+    height: 25px;
+    padding: 0px 15px;
+    line-height: 25px;
+    color: #f5f5f5;
+    font-size: 14px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 500;
+}
+
+#uk-navbar-menu .uk-navbar-nav > li.uk-open > a,
+#uk-navbar-menu .uk-navbar-nav > li:hover > a,
+#uk-navbar-menu .uk-navbar-nav > li > a:focus {
+    background: #35b3ee;
+    color: #fff;
+    outline: 0;
+}
+
+
+/*LANG SWITCHER NAV*/
+#uk-navbar-menu .block-locale {
+	float: left;
+}
+
+#uk-navbar-menu ul.language-switcher-locale-url,
+#uk-navbar-menu span.locale-untranslated {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    float: left;
+}
+
+#uk-navbar-menu ul.language-switcher-locale-url > li {
+    float: left;
+    position: relative;
+}
+
+#uk-navbar-menu ul.language-switcher-locale-url > li:first-child {
+	border-left: solid 1px #fff;
+}
+
+#uk-navbar-menu ul.language-switcher-locale-url > li > a {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: none;
+    height: 25px;
+    padding: 0 15px;
+    line-height: 25px;
+    color: #fff;
+    font-size: 14px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 500;
+}
+
+#uk-navbar-menu ul.language-switcher-locale-url > li > span.locale-untranslated {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: line-through;
+    height: 25px;
+    padding: 0 15px;
+    line-height: 25px;
+    color: #fff;
+    font-size: 14px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 500;
+}
+
+#uk-navbar-menu ul.language-switcher-locale-url > li > a:hover,
+#uk-navbar-menu ul.language-switcher-locale-url > li > a:focus,
+#uk-navbar-menu ul.language-switcher-locale-url > li > a:active {
+ 	background: #35b3ee;
+	outline: 0;
+}
+
+/*LANG SWITCHER OFFCANVAS*/
+
+#offcanvas-bar ul.language-switcher-locale-url,
+#offcanvas-page ul.language-switcher-locale-url {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#offcanvas-bar ul.language-switcher-locale-url > li,
+#offcanvas-page ul.language-switcher-locale-url > li {
+    float: left;
+    position: relative;
+}
+
+#offcanvas-bar ul.language-switcher-locale-url > li > a,
+#offcanvas-page ul.language-switcher-locale-url > li > a {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: none;
+    height: 40px;
+    padding: 0 15px;
+    line-height: 40px;
+    color: #ccc;
+    font-size: 14px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 500;
+}
+
+#offcanvas-bar ul.language-switcher-locale-url > li > a:hover,
+#offcanvas-bar ul.language-switcher-locale-url > li > a:focus,
+#offcanvas-bar ul.language-switcher-locale-url > li > a:active,
+#offcanvas-page ul.language-switcher-locale-url > li > a:hover,
+#offcanvas-page ul.language-switcher-locale-url > li > a:focus,
+#offcanvas-page ul.language-switcher-locale-url > li > a:active {
+ 	background: #404040;
+	color: White;
+	outline: 0;
+}
+
+#offcanvas-bar ul.language-switcher-locale-url > li > span.locale-untranslated,
+#offcanvas-page ul.language-switcher-locale-url > li > span.locale-untranslated {
+    display: block;
+    box-sizing: border-box;
+    text-decoration: line-through;
+    height: 40px;
+    padding: 0 15px;
+    line-height: 40px;
+    color: #666;
+    font-size: 14px;
+    font-family: "Dosis",Helvetica,Arial,sans-serif;
+    font-weight: 500;
+}

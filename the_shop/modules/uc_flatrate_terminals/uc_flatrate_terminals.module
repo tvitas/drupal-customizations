@@ -1,0 +1,517 @@
+<?php
+/**
+ * @file
+ * Shipping quote module that defines a flat shipping to terminals rate for each product.
+ */
+
+/**
+ * Implements hook_schema_alter().
+ */
+
+function uc_flatrate_terminals_schema_alter(&$schema) {
+	$schema['uc_orders']['fields']['flatrate_terminal'] = array(
+		'type' => 'text',
+		'not null' => TRUE,
+		'default' => '',
+		'description' => 'Flatrate terminal data',);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function uc_flatrate_terminals_menu() {
+  $items = array();
+
+  $items['admin/store/settings/quotes/methods/flatrate-terminals/add'] = array(
+    'title' => 'Add flat rate quote for delivery to terminal',
+    'description' => 'Create a new flat rate shipping quote for delivery to terminal.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('uc_flatrate_terminals_admin_method_edit_form'),
+    'access arguments' => array('configure quotes'),
+    'type' => MENU_LOCAL_ACTION,
+    'file' => 'uc_flatrate_terminals.admin.inc',
+  );
+  $items['admin/store/settings/quotes/methods/flatrate-terminals/%'] = array(
+    'title' => 'Edit flat rate for delivery to terminal method',
+    'description' => 'Edit an existing flat rate for delivery to terminal shipping quote.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('uc_flatrate_terminals_admin_method_edit_form', 6),
+    'access arguments' => array('configure quotes'),
+    'file' => 'uc_flatrate_terminals.admin.inc',
+  );
+  $items['admin/store/settings/quotes/flatrate-terminals/%/delete'] = array(
+    'title' => 'Delete flat rate for delivery to terminal method',
+    'description' => 'Delete a flat rate for delivery to terminal shipping quote.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('uc_flatrate_terminals_admin_method_confirm_delete', 5),
+    'access arguments' => array('configure quotes'),
+    'file' => 'uc_flatrate_terminals.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_cron().
+ * Updates terminals list if it is configured as web service
+ */
+
+function uc_flatrate_terminals_cron() {
+	$rows = db_select('uc_flatrate_terminals_methods', 't')
+		->fields('t', array('mid', 'title', 'terminals_config'))
+		->execute()
+		->fetchAll();
+	foreach ($rows as $row) {
+		$mid = $row -> mid;
+		$terminals_config = parse_ini_string($row -> terminals_config, TRUE);
+		if (isset($terminals_config['terminals'])) {
+			foreach ($terminals_config['terminals'] as $key => $val) {
+				if ($key == 'http' || $key == 'https') {
+					$terminals = uc_flatrate_terminals_get_terminals_list($key, $val, $mid);
+					if (!empty($terminals)) {
+						watchdog('uc_flatrate_terminals', 'Terminals list of ' . $row -> title . ' update done.', NULL, WATCHDOG_NOTICE);
+					} else {
+						watchdog('uc_flatrate_terminals', 'Terminals list of ' . $row -> title . ' update failed.', NULL, WATCHDOG_WARNING);
+					}
+					break;
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Implements hook_uc_order_pane().
+ */
+
+function uc_flatrate_terminals_uc_order_pane() {
+  $panes['flatrate_terminal'] = array(
+    'callback' => 'uc_flatrate_terminals_terminal_pane',
+    'title' => t('Terminal'),
+    'desc' => t('Flatrate terminal data.'),
+    'class' => 'pos-left',
+    'weight' => 2,
+    'show' => array('view', 'edit'),
+  );
+  return $panes;
+}
+
+//function uc_flatrate_terminals_uc_order_pane_alter(&$panes) {
+	//dpm($panes);
+	//silence is gold
+	//TODO: integrate terminal data field into ship_to pane
+//}
+
+function uc_flatrate_terminals_terminal_pane($op, $order, &$form = NULL, &$form_state = NULL) {
+	switch ($op) {
+		case 'view': {
+			return array('#markup' => nl2br($order -> flatrate_terminal));
+			break;
+		}
+		case 'edit-form': {
+			$form['flatrate_terminal_field'] = array(
+					'#type' => 'textarea',
+					'#description' => t('Flatrate terminal data'),
+					'#default_value' => $order -> flatrate_terminal,);
+			return $form;
+			break;
+		}
+		case 'edit-theme': {
+			$output = drupal_render($form['flatrate_terminal_field']);
+			return $output;
+			break;
+		}
+		case 'edit-process': {
+			$changes['flatrate_terminal'] = $form_state['values']['flatrate_terminal_field'];
+			return $changes;
+			break;
+		}
+	}
+}
+
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Adds a form element for the shipping rate of a product.
+ */
+function uc_flatrate_terminals_form_alter(&$form, &$form_state, $form_id) {
+  if (uc_product_is_product_form($form)) {
+    $weight = variable_get('uc_quote_method_weight', array());
+    $result = db_query("SELECT mid, title, product_rate FROM {uc_flatrate_terminals_methods}");
+    foreach ($result as $method) {
+      // Ensure default weight is set.
+      $weight += array('flatrate_terminals_' . $method->mid => 0);
+
+      if (!isset($form['shipping']['flatrate_terminals'])) {
+        $form['shipping']['flatrate_terminals'] = array(
+          '#type' => 'fieldset',
+          '#title' => t('Flat shipping rates for delivery to terminals'),
+          '#description' => t("Overrides the default shipping rate per product for each flat rate shipping method. Leave field empty to use the method's default value."),
+          '#tree' => TRUE,
+          '#collapsible' => TRUE,
+          '#collapsed' => FALSE,
+          '#weight' => 0,
+        );
+      }
+      $form['shipping']['flatrate_terminals'][$method->mid] = array(
+        '#type' => 'uc_price',
+        '#title' => check_plain($method->title),
+        '#default_value' => isset($form['#node']->flatrate_terminals[$method->mid]) ? $form['#node']->flatrate_terminals[$method->mid] : '',
+        '#description' => t('Default rate: %price', array('%price' => uc_currency_format($method->product_rate))),
+        '#weight' => $weight['flatrate_terminals_' . $method->mid],
+        '#empty_zero' => FALSE,
+      );
+    }
+  }
+}
+
+/**
+ * Provides terminals list on checkout page
+ *
+ *
+ */
+
+function uc_flatrate_terminals_form_uc_cart_checkout_form_alter(&$form, &$form_state, $form_id) {
+	$mid = 0;
+	$terminals_list = array();
+	$terminals_config = array();
+	$terminals_data = array();
+	$counter = 0;
+	if (isset($form['panes']['quotes']['quotes'])) {
+		foreach ($form['panes']['quotes']['quotes'] as $qkey => $qval) {
+			if ((strstr($qkey, 'flatrate_terminals_')) || (strstr($qkey, 'flatrate_')) || (strstr($qkey, 'weightquote_'))) {
+				$form['panes']['quotes']['quotes'][$qkey]['#weight'] = $counter;
+			}
+			if (strstr($qkey, 'flatrate_terminals_')) {
+				$terminals = uc_flatrate_terminals_get_terminals($qkey);
+				if (!empty($terminals)) {
+					foreach ($terminals['terminals'] as $terminal) {
+						if ($terminal['isActive']  && ($terminal['type'] == 1)) {
+							$key = $terminal['identifier'];
+							$terminals_list[$terminal['city']][$key] = $terminal['city'] . ' – ' . $terminal['name'];
+							$terminals_list[$terminal['city']][$key . '-dis'] = $terminal['address'];
+							$terminals_list[$terminal['city']][$key . '-sep'] = str_repeat('-', 15);
+							$disabled_options[] = $key . '-dis';
+							$disabled_options[] = $key . '-sep';
+						}
+					}
+					setlocale(LC_COLLATE, 'lt_LT.UTF-8');
+					ksort($terminals_list, SORT_LOCALE_STRING);
+				}
+				$form['panes']['quotes']['quotes'][$qkey . '_list'] = array(
+				'#type' => 'select',
+				'#title' => _t('_terminals_', t('Terminals')),
+				'#options' => $terminals_list,
+				'#empty_value' => FALSE,
+				'#disabled_options' => $disabled_options,
+				'#weight' => $counter +1,
+				);
+			}
+			$counter = $counter + 2;
+		}
+		$form['#attached']['js'] = array(drupal_get_path('module', 'uc_flatrate_terminals') . '/uc_flatrate_terminals.js',);
+		$form['#submit'][] = 'uc_flatrate_terminals_checkout_submit';
+		$form['#validate'][] = 'uc_flatrate_terminals_checkout_form_validate';
+	}
+}
+
+/**
+ * Terminal data must be not empty and payment method "cash" is not possible
+ *
+ */
+
+function uc_flatrate_terminals_checkout_form_validate($form, &$form_state) {
+	if (isset($form_state['values']['panes']['quotes']['quotes']['quote_option'])) {
+		if (strstr($form_state['values']['panes']['quotes']['quotes']['quote_option'], 'flatrate_terminals_')) {
+			$selected_quote = $form_state['values']['panes']['quotes']['quotes']['quote_option'];
+			if (isset($form_state['values']['panes']['quotes']['quotes'][$selected_quote.'_list'])) {
+				if ($form_state['values']['panes']['quotes']['quotes'][$selected_quote.'_list'] == 0) {
+					$form_state['checkout_valid'] = FALSE;
+					drupal_set_message(_t('_no_terminal_selected_', t('Delivery to terminal option is selected, but no terminal is selected.')), 'error', TRUE);
+				}
+			}
+			if (isset($form_state['values']['panes']['payment']['payment_method'])) {
+				if ($form_state['values']['panes']['payment']['payment_method'] == 'check') {
+					$form_state['checkout_valid'] = FALSE;
+					drupal_set_message(_t('_payment_check_is_not_valid_', t('When delivery to terminal option is selected, payment by check is not possible.')), 'error', TRUE);
+				}
+			}
+		}
+	}
+}
+
+/**
+ * If flatrate terminals quote otion is selected
+ * save terminal data to order.
+ *
+ */
+
+function uc_flatrate_terminals_checkout_submit($form, &$form_state) {
+	global $user;
+	if (isset($form_state['values']['panes']['quotes']['quotes']['quote_option'])) {
+		if (strstr($form_state['values']['panes']['quotes']['quotes']['quote_option'], 'flatrate_terminals_')) {
+			$selected_quote = $form_state['values']['panes']['quotes']['quotes']['quote_option'];
+			$terminals = uc_flatrate_terminals_get_terminals($selected_quote);
+			if (!empty($terminals)) {
+				foreach ($terminals['terminals'] as $terminal) {
+					$terminal_identifier = $form_state['values']['panes']['quotes']['quotes']['quote_option'] . '_list';
+					if ($terminal['identifier'] == $form_state['values']['panes']['quotes']['quotes'][$terminal_identifier]) {
+						if (($order_id = intval($_SESSION['cart_order'])) > 0) {
+							$order = uc_order_load($order_id);
+							$terminal_string = $terminal['identifier'] . "\n" . $terminal['courierIdentifier'] . "\n" . $terminal['name'] . "\n" . $terminal['address'] . ', ' . $terminal['city'] . "\n" . $terminal['comment'];
+							$order -> flatrate_terminal = $terminal_string;
+							$data = $order -> data;
+							$data['flatrate_terminals']['identifier'] = $terminal['identifier'];
+							$data['flatrate_terminals']['courierIdentifier'] = $terminal['courierIdentifier'];
+							$data['flatrate_terminals']['name'] = $terminal['name'];
+							$data['flatrate_terminals']['address'] = $terminal['address'];
+							$data['flatrate_terminals']['city'] = $terminal['city'];
+							$data['flatrate_terminals']['comment'] = $terminal['comment'];
+							$records = db_update('uc_orders')
+							->fields(array('flatrate_terminal' => $terminal_string, 'data' => serialize($data),))
+							->condition('order_id', $order_id, '=')
+							->execute();
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+/**
+ *
+ * Get terminals data
+ *
+ */
+
+function uc_flatrate_terminals_get_terminals($qkey) {
+	$b = ltrim($qkey, 'flatrate_terminals_');
+	$s = explode('-', $b);
+	$mid = intval($s[0]);
+	$t = db_select('uc_flatrate_terminals_methods', 't')
+		->fields('t', array('terminals_config', 'terminals_data'))
+		->condition('mid', $mid)
+		->execute()
+		->fetchAssoc();
+	$terminals_config = parse_ini_string($t['terminals_config'], TRUE);
+	$terminals_data = json_decode($t['terminals_data'], TRUE);
+	if (isset($terminals_config['terminals'])) {
+		foreach ($terminals_config['terminals'] as $key => $val) {
+		//TODO: implement csv, key|val)
+			if (($key == 'http' || $key == 'https') && empty($terminals_data)) {
+				$terminals = uc_flatrate_terminals_get_terminals_list($key, $val, $mid);
+				break;
+			} elseif (($key == 'http' || $key == 'https') && !empty($terminals_data)) {
+				$terminals = $terminals_data;
+				break;
+			}
+		}
+	}
+	return $terminals;
+}
+
+
+/**
+ *
+ * Get terminals list
+ *
+ */
+function uc_flatrate_terminals_get_terminals_list($key, $val, $mid) {
+	$return = array();
+	switch ($key) {
+		case 'https':
+		case 'http': {
+			$result = '';
+			$raw_list = array();
+			$terminals = array();
+			$list_url = $key . '://' . $val;
+			if ($list_url) {
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_URL, $list_url);
+				$result = curl_exec($ch);
+				curl_close($ch);
+			}
+			if ($result) {
+				$return = json_decode($result, TRUE);
+				$records = db_update('uc_flatrate_terminals_methods')
+						->fields(array('terminals_data' => json_encode($return, JSON_UNESCAPED_UNICODE),))
+						->condition('mid', $mid, '=')
+						->execute();
+			}
+			break;
+		}
+		//not implemented yet
+		case 'csv': {
+			break;
+		}
+		case 'json': {
+			break;
+		}
+		default: {
+			break;
+		}
+	}
+	return $return;
+}
+
+
+/**
+ * Implements hook_node_insert().
+ */
+function uc_flatrate_terminals_node_insert($node) {
+  uc_flatrate_terminals_node_update($node);
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function uc_flatrate_terminals_node_update($node) {
+  if (uc_product_is_product($node->type)) {
+    if (isset($node->flatrate_terminals) && is_array($node->flatrate_terminals)) {
+      if (empty($node->revision)) {
+        db_delete('uc_flatrate_terminals_products')
+          ->condition('vid', $node->vid)
+          ->execute();
+      }
+
+      $query = db_insert('uc_flatrate_terminals_products')
+        ->fields(array('vid', 'nid', 'mid', 'rate'));
+
+      foreach ($node->flatrate_terminals as $mid => $rate) {
+        if (is_numeric($rate) && $rate >= 0) {
+          $query->values(array(
+              'vid' => $node->vid,
+              'nid' => $node->nid,
+              'mid' => $mid,
+              'rate' => $rate,
+            ));
+        }
+      }
+
+      $query->execute();
+    }
+  }
+}
+
+/**
+ * Implements hook_node_load().
+ */
+function uc_flatrate_terminals_node_load($nodes, $types) {
+  $vids = array();
+  $product_types = uc_product_types();
+
+  foreach ($nodes as &$node) {
+    if (in_array($node->type, $product_types)) {
+      $vids[$node->nid] = $node->vid;
+    }
+  }
+
+  if ($vids) {
+    $result = db_query("SELECT nid, mid, rate FROM {uc_flatrate_terminals_products} WHERE vid IN (:vids)", array(':vids' => $vids));
+    foreach ($result as $method) {
+      $nodes[$method->nid]->flatrate_terminals[$method->mid] = $method->rate;
+    }
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function uc_flatrate_terminals_node_delete($node) {
+  db_delete('uc_flatrate_terminals_products')
+    ->condition('nid', $node->nid)
+    ->execute();
+}
+
+/**
+ * Implements hook_node_revision_delete().
+ */
+function uc_flatrate_terminals_node_revision_delete($node) {
+  db_delete('uc_flatrate_terminlas_products')
+    ->condition('vid', $node->vid)
+    ->execute();
+}
+
+/**
+ * Implements hook_uc_shipping_method().
+ */
+function uc_flatrate_terminals_uc_shipping_method() {
+  $methods = array();
+  $result = db_query("SELECT mid, title, label, base_rate, product_rate, vat_rate, terminals_config, terminals_data FROM {uc_flatrate_terminals_methods}");
+  foreach ($result as $method) {
+    $methods['flatrate_terminals_' . $method->mid] = array(
+      'id' => 'flatrate_terminals_' . $method->mid,
+      'module' => 'uc_flatrate_terminals',
+      'title' => $method->title,
+      'description' => t('!base_rate + !product_rate per item', array('!base_rate' => uc_currency_format($method->base_rate), '!product_rate' => uc_currency_format($method->product_rate))),
+      'operations' => array(
+        'edit' => array(
+          'title' => t('edit'),
+          'href' => 'admin/store/settings/quotes/methods/flatrate-terminals/' . $method->mid,
+        ),
+        'delete' => array(
+          'title' => t('delete'),
+          'href' => 'admin/store/settings/quotes/flatrate-terminals/' . $method->mid . '/delete',
+        ),
+      ),
+      'quote' => array(
+        'type' => 'order',
+        'callback' => 'uc_flatrate_terminals_quote',
+        'accessorials' => array(
+          $method->label,
+        ),
+      ),
+      'enabled' => TRUE,
+    );
+  }
+
+  return $methods;
+}
+
+/**
+ * Standard callback to return a shipping rate via the flat rate method.
+ *
+ * @param $products
+ *   The order's products.
+ * @param $details
+ *   Other order details including a shipping address.
+ * @param $method
+ *   The shipping method to use to create the quote.
+ *
+ * @return
+ *   An array containing the shipping quote for the order.
+ */
+function uc_flatrate_terminals_quote($products, $details, $method) {
+  $method = explode('_', $method['id']);
+  $mid = $method[2];
+
+  if ($method = db_query("SELECT * FROM {uc_flatrate_terminals_methods} WHERE mid = :mid", array(':mid' => $mid))->fetchObject()) {
+    // Start at the base rate.
+    $rate = $method->base_rate;
+	$vat_rate = $method->vat_rate;
+
+    foreach ($products as $product) {
+      if (!isset($product->flatrate_terminals[$mid])) {
+        // Add the method's default product rate.
+        $rate += $method->product_rate * $product->qty;
+      }
+      else {
+        // Add the product-specific rate.
+        $rate += $product->flatrate_terminals[$mid] * $product->qty;
+      }
+    }
+
+    $quotes[] = array(
+      'rate' => $rate,
+      'vat_rate' => $vat_rate,
+      'label' => check_plain($method->label),
+      'option_label' => check_plain($method->label),
+    );
+  }
+
+  return $quotes;
+}

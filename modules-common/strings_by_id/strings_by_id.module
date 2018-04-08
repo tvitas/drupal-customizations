@@ -1,0 +1,87 @@
+<?php
+define ('STRID_DEBUG', FALSE);
+/*INTERFACE TRANSLATE BASED ON STRINGS WITH ID. IMHO FASTER WAY FOR PROGRAMMERS, THEN USE DRUPAL TRANSLATION SYSTEM*/
+function _t($id, $str = '', $method = 'direct') {
+	global $language_content;
+	$lang = $language_content->language;
+	$lazy_translate_vars = array();
+	$return = $str;
+	$include = drupal_get_path('module', 'strings_by_id') . '/'. 'strings.inc.php';
+	if (file_exists($include)) {
+		include('strings.inc.php');
+	}
+	switch ($method) {
+		case 'direct': {
+			if (isset($lazy_translate_vars[$lang][$id])) {
+				$return = $lazy_translate_vars[$lang][$id];
+			} else {
+				if (isset($lazy_translate_vars[LANGUAGE_NONE][$id])) {
+					$return = $lazy_translate_vars[LANGUAGE_NONE][$id];
+				}
+			}
+			break;
+		}
+		case 'replace': {
+			if (!empty($str)) {
+				$search = substr($str, 0, strpos($str, ':'));
+				$replace = $id;
+				if (isset($lazy_translate_vars[$lang][$id])) {
+					$replace = $lazy_translate_vars[$lang][$id];
+				} else {
+					if (isset($lazy_translate_vars[LANGUAGE_NONE][$id])) {
+						$replace = $lazy_translate_vars[LANGUAGE_NONE][$id];
+					}
+				}
+				$return = str_replace($search, $replace, $str);
+			}
+			break;
+		}
+		case 'match': {
+			foreach ($lazy_translate_vars[LANGUAGE_NONE] as $key => $val) {
+				if (strpos($id, ltrim($key, '_'))) {
+					$id = $key;
+					break;
+				}
+			}
+			$return = _t($id, $str);
+			break;
+		}
+	}
+	if (STRID_DEBUG) {
+		return $id;
+	} else {
+		return $return;
+	}
+}
+
+/*TRANSLITERATE*/
+function _tlr($str) {
+  $a = array('.','–',',','€', ' ', '?', '*', '/', '\\', '~', '!', '@', '$', '%', '^', '&', '<', '>', '"', ':', ';', '#', 'ž', '„', '“', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ',  'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð', 'Ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'Ø', 'Ù', 'Ú', 'Û', 'Ü', 'Ý', 'ß', 'à', 'á', 'â', 'ã', 'ä', 'å',  'æ', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï', 'ñ', 'ò', 'ó', 'ô', 'õ', 'ö', 'ø', 'ù', 'ú', 'û', 'ü', 'ý', 'ÿ', 'Ā', 'ā', 'Ă', 'ă', 'Ą', 'ą', 'Ć', 'ć', 'Ĉ', 'ĉ', 'Ċ', 'ċ', 'Č', 'č', 'Ď', 'ď', 'Đ', 'đ', 'Ē', 'ē', 'Ĕ', 'ĕ', 'Ė', 'ė', 'Ę', 'ę', 'Ě', 'ě', 'Ĝ', 'ĝ', 'Ğ', 'ğ', 'Ġ', 'ġ', 'Ģ', 'ģ', 'Ĥ', 'ĥ', 'Ħ', 'ħ', 'Ĩ', 'ĩ', 'Ī', 'ī', 'Ĭ', 'ĭ', 'Į', 'į', 'İ', 'ı',  'Ĳ',  'ĳ', 'Ĵ', 'ĵ', 'Ķ', 'ķ', 'Ĺ', 'ĺ', 'Ļ', 'ļ', 'Ľ', 'ľ', 'Ŀ', 'ŀ', 'Ł', 'ł', 'Ń', 'ń', 'Ņ', 'ņ', 'Ň', 'ň', 'ŉ', 'Ō', 'ō', 'Ŏ', 'ŏ', 'Ő', 'ő',  'Œ',  'œ', 'Ŕ', 'ŕ', 'Ŗ', 'ŗ', 'Ř', 'ř', 'Ś', 'ś', 'Ŝ', 'ŝ', 'Ş', 'ş', 'Š', 'š', 'Ţ', 'ţ', 'Ť', 'ť', 'Ŧ', 'ŧ', 'Ũ', 'ũ', 'Ū', 'ū', 'Ŭ', 'ŭ', 'Ů', 'ů', 'Ű', 'ű', 'Ų', 'ų', 'Ŵ', 'ŵ', 'Ŷ', 'ŷ', 'Ÿ', 'Ź', 'ź', 'Ż', 'ż', 'Ž', 'ž', 'ſ', 'ƒ', 'Ơ', 'ơ', 'Ư', 'ư', 'Ǎ', 'ǎ', 'Ǐ', 'ǐ', 'Ǒ', 'ǒ', 'Ǔ', 'ǔ', 'Ǖ', 'ǖ', 'Ǘ', 'ǘ', 'Ǚ', 'ǚ', 'Ǜ', 'ǜ', 'Ǻ', 'ǻ',  'Ǽ',  'ǽ', 'Ǿ', 'ǿ');
+  $b = array('_','-','-','-', '-', '-', '-', '-', '-', '-', '-',  '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', 'z', '-', '-', 'A', 'A', 'A', 'A', 'A', 'A', 'AE', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'D', 'N', 'O', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'n', 'o', 'o', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u', 'y', 'y', 'A', 'a', 'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd', 'D', 'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g', 'G', 'g', 'G', 'g', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'IJ', 'ij', 'J', 'j', 'K', 'k', 'L', 'l', 'L', 'l', 'L', 'l', 'L', 'l', 'l', 'l', 'N', 'n', 'N', 'n', 'N', 'n', 'n', 'O', 'o', 'O', 'o', 'O', 'o', 'OE', 'oe', 'R', 'r', 'R', 'r', 'R', 'r', 'S', 's', 'S', 's', 'S', 's', 'S', 's', 'T', 't', 'T', 't', 'T', 't', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'W', 'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i', 'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o');
+  return str_replace($a, $b, $str);
+}
+
+/*GET TRANSLATED STRING ID BY VALUE*/
+function _gtsid($s) {
+	global $language_content;
+	$lang = $language_content->language;
+	$lazy_translate_vars = array();
+	$include = drupal_get_path('module', 'strings_by_id') . '/'. 'strings.inc.php';
+	$return = '';
+	if (file_exists($include)) {
+		include('strings.inc.php');
+	}
+	foreach($lazy_translate_vars[$lang] as $key => $value) {
+		if ($value == $s) {
+			$return = $key;
+			break;
+		}
+	}
+	return $return;
+}
+
+/*GET STRING ID*/
+function _gid($id, $type = 'title') {
+	$id = strtolower(_tlr($id));
+	return '_'.strtr($id,'-','_').'_';
+}

@@ -1,0 +1,5 @@
+name = The Zero Helpers
+description = Provides functions for The Zero theme functionality
+core = 7.x
+
+

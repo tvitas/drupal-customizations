@@ -1,0 +1,28 @@
+.figure-topmost {
+	min-height: 175px;
+	max-height: 175px;
+	height: 175px;
+}
+
+.body-topmost {
+	min-height: 170px;
+	max-height: 170px;
+	height: 170px;
+	white-space: wrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: justify;
+}
+
+.body-topmost p {
+	text-align: justify;
+}
+
+@media screen and (max-width: 360px) {
+	.body-topmost {
+		font-size: smaller;
+		min-height: 95px;
+		max-height: 95px;
+		height: 95px;
+	}
+}

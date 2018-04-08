@@ -1,0 +1,129 @@
+﻿<?php
+/**
+ * Implements hook_menu().
+ */
+function meta_description_menu() {
+  $items = array();
+  $items['admin/config/content/meta_description'] = array(
+    'title' => 'Meta description meta tag',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('meta_description_settings_form'),
+    'description' => 'Configuring meta description tag for SEO',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'meta_description.admin.inc',
+  );
+  return $items;
+}
+
+function meta_description_page_build(&$page) {
+  $q = $_GET['q'];
+  $splitted = explode('/', $q);
+  $md_settings = variable_get('md_settings', FALSE);
+  $meta_description_content = FALSE;
+  $meta_description = array(
+      '#tag' => 'meta',
+      '#attributes' => array(
+      'name' => 'description',
+      'content' => '',
+    ),
+  );
+  if ($md_settings) {
+    switch ($splitted[0]) {
+      case 'taxonomy': {
+        if (!empty($splitted[2])) {
+          $meta_description_content = strip_tags(db_select('taxonomy_term_data', 't')
+            ->fields('t', array('description'))
+            ->condition('tid', $splitted[2])
+            ->execute()
+            ->fetchField());
+        }
+        if (!$meta_description_content) {
+          $meta_description_content = _md_get_defaults('taxonomy');
+        }
+        break;
+      }
+      case 'node': {
+        if ((!empty($splitted[1])) && ($splitted[1] !== 'add')) {
+          $node = node_load($splitted[1]);
+          $body = '';
+          if (isset($node -> body['und'][0]['value'])) {
+            $body = trim(strip_tags($node -> body['und'][0]['value']));
+          }
+          $body = str_replace(array("\r","\n"), ' ', $body);
+          $body = trim(preg_replace('/\s+/', ' ',$body));
+          $body_words = explode(' ', $body);
+          $body_words_num = count($body_words);
+          $meta_description_content = implode(' ', $body_words);
+          if ($body_words_num < $md_settings['md_node_words_threshold_min']) {
+            $meta_description_content = _md_get_defaults('node');
+          }
+          if ($body_words_num > $md_settings['md_node_words_truncate_threshold']) {
+            $meta_description_content = implode(' ', array_slice($body_words, 0, $md_settings['md_node_words_truncate_threshold']));
+          }
+        } elseif (empty($splitted[1])) {
+          $meta_description_content = _md_get_defaults('front');
+        } elseif ((!empty($splitted[1])) && ($splitted[1] == 'add')) {
+          $meta_description_content = _md_get_defaults('node');
+        }
+        break;
+      }
+      default: {
+        $meta_description_content = _md_get_defaults('site');
+        break;
+      }
+    }
+  }
+  $meta_description['#attributes']['content'] = $meta_description_content;
+  drupal_add_html_head($meta_description, 'description');
+}
+
+/*
+ * Helper - get defaults
+ *
+ */
+
+function _md_get_defaults($context) {
+  $default = variable_get('site_name', '') . ' | ' . variable_get('site_slogan', '');
+  $md_settings = variable_get('md_settings', FALSE);
+  $return = '';
+  if ($md_settings) {
+    switch ($context) {
+      case 'taxonomy' : {
+        if (!empty($md_settings['md_default_taxonomy_term'])) {
+          $return = $md_settings['md_default_taxonomy_term'];
+        } elseif (!empty($md_settings['md_default_site'])) {
+          $return = $md_settings['md_default_site'];
+        }
+        break;
+      }
+      case 'node': {
+        if (!empty($md_settings['md_default_node'])) {
+          $return = $md_settings['md_default_node'];
+        } elseif (!empty($md_settings['md_default_site'])) {
+          $return = $md_settings['md_default_site'];
+        }
+        break;
+      }
+      case 'front': {
+        if (!empty($md_settings['md_default_front_page'])) {
+          $return = $md_settings['md_default_front_page'];
+        } elseif (!empty($md_settings['md_default_site'])) {
+          $return = $md_settings['md_default_site'];
+        }
+        break;
+      }
+      case 'site': {
+        if (!empty($md_settings['md_default_site'])) {
+          $return = $md_settings['md_default_site'];
+        }
+        break;
+      }
+    }
+  }
+  if (!$return) {
+    $return = $default;
+  }
+  return $return;
+}
+

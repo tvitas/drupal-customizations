@@ -1,0 +1,3 @@
+<?php
+define('WORD_COUNT_THRESHOLD', 10);
+define('WORD_TRUNCATE_THRESHOLD', 150);

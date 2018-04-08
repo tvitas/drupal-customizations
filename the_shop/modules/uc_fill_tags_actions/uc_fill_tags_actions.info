@@ -1,0 +1,7 @@
+name = Fill ubercart product's field field_tags
+description = Provides bulk product's field_tags filling, based on category terms
+dependences[] = uc_product
+dependences[] = strings_by_id
+core = 7.x
+
+

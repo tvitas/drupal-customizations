@@ -1,0 +1,65 @@
+/*SLIDE SHOW*/
+.the-shop-border {
+	border: solid 1px #bbb;
+	box-shadow: 3px 3px 3px #bbb;
+}
+
+
+#slide-show-block h1,
+#slide-show-block h2,
+#slide-show-block h3,
+#slide-show-block h4,
+#slide-show-block h5,
+#slide-show-block h6 {
+	font-weight: bold;
+	text-shadow: 1px 1px 2px #999;
+}
+
+#slide-show-block h1 {
+	font-size: 48px;
+	color: #330066;
+	margin-top: 20%;
+}
+
+#slide-show-block h2 {
+	font-size: 40px;
+}
+
+#slide-show-block h2.basalis-panthenol {
+	color: #980000;
+}
+
+#slide-show-block h2.basalis-calendula {
+	color: OrangeRed;
+}
+
+#slide-show-block h2.basalis-canabis {
+	color: #777Drab;
+}
+
+#slide-show-block h2.basalis-aloe {
+	color: DarkGreen;
+}
+
+#slide-show-block h2.basalis-lavanda {
+	color: Purple;
+}
+
+#slide-show-block h2.basalis-cananga {
+	color: GoldenRod;
+}
+
+#slide-show-block h2.linija--basalis-,
+#slide-show-block h2.homeopatiniai-preparatai {
+	color: #b20000;
+}
+
+#slide-show-block .uk-overlay-background {
+	background: rgba(255,255,255,.3);
+}
+
+#slide-show-block p {
+	color: #b20000;
+	font-size: 20px;
+	background: rgba(255,255,255,0.5);
+}

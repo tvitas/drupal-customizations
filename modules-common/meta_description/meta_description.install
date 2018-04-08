@@ -1,0 +1,25 @@
+<?php
+/**
+ * Implements hook_install()
+ */
+require('constants.inc');
+
+function meta_description_install() {
+  $md_settings = array(
+    'md_default_site'=>'',
+    'md_default_front_page'=>'',
+    'md_default_taxonomy_term'=>'',
+    'md_default_node'=>'',
+    'md_node_words_threshold_min'=>WORD_COUNT_THRESHOLD,
+    'md_node_words_truncate_threshold'=>WORD_TRUNCATE_THRESHOLD,
+  );
+  variable_set('md_settings', $md_settings);
+}
+
+/**
+ * Implements hook_uninstall()
+ */
+function meta_description_uninstall() {
+  variable_del('md_settings');
+}
+
