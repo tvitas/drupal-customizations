@@ -1,0 +1,7 @@
+name = Ubercart Shipping discounts
+description = Provides interface for shipping discounts
+core = 7.x
+
+files[] = uc_shipping_discounts.admin.inc.php
+files[] = uc_shipping_discounts.install
+files[] = uc_shipping_discounts.module

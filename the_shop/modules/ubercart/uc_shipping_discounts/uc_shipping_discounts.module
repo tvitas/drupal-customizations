@@ -1,0 +1,144 @@
+<?php
+require('uc_shipping_discounts_entity.inc.php');
+
+function uc_shipping_discounts_menu() {
+  $items = array();
+
+  $items['admin/store/shipping-discounts'] = array(
+    'title' => 'Shipping discounts',
+    'description' => t('Manage store shipping discounts.'),
+    'page callback' => 'uc_shipping_discounts_display',
+    'access arguments' => array('administer content'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uc_shipping_discounts.admin.inc.php',
+    'weight' => 0,
+  );
+
+  $items['admin/store/shipping-discounts/list'] = array(
+    'title' => 'Shipping discounts',
+    'description' => t('Manage store shipping discounts.'),
+    'page callback' => 'uc_shipping_discounts_display',
+    'access arguments' => array('administer content'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uc_shipping_discounts.admin.inc.php',
+    'weight' => 0,
+  );
+
+
+  $items['admin/store/shipping-discounts/add'] = array(
+    'title' => 'Add new shipping discount',
+    'description' => 'Add a new shipping discount.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('uc_shipping_discounts_add_form', NULL, 3),
+    'access arguments' => array('administer content'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uc_shipping_discounts.admin.inc.php',
+    'weight' => 2,
+  );
+
+
+  $items['admin/store/shipping-discounts/%uc_shipping_discounts/edit'] = array(
+    'title' => 'Edit',
+    'description' => 'Edit a shipping discount.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('uc_shipping_discounts_add_form', 3, 4),
+    'access arguments' => array('administer content'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'uc_shipping_discounts.admin.inc.php',
+    'weight' => 6,
+  );
+
+
+  $items['admin/store/shipping-discounts/%uc_shipping_discounts/delete'] = array(
+    'title' => 'Delete',
+    'description' => 'Delete a shipping discount.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('uc_shipping_discounts_delete_confirm', 3),
+    'access arguments' => array('administer content'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'uc_shipping_discounts.admin.inc.php',
+    'weight' => 8,
+  );
+
+  return $items;
+}
+
+
+function uc_shipping_discounts_uc_quote_data_alter(&$quote_data, &$order, $method) {
+    $cart_total = uc_shipping_discounts_uc_cart_total();
+    $discounts = db_select('uc_shipping_discounts', 'd')
+                ->fields('d')
+                ->condition('d.discount_enabled', 1, '=')
+                ->condition('d.discount_method_id', $method['id'], '=')
+                ->condition('d.discount_until', strtotime('now'), '>=')
+                ->execute()
+                ->fetchAll();
+    if (!empty($discounts)) {
+        foreach ($discounts as $discount) {
+            $counter = 0;
+            foreach ($quote_data as $qd) {
+                if ($discount->discount_order_value) {
+                    if ($cart_total >= $discount->discount_order_value) {
+                        $quote_data[$counter]['rate'] = $quote_data[$counter]['rate'] - ($quote_data[$counter]['rate'] * $discount->discount_percent / 100);
+                    } else {
+                        $deficit = $discount->discount_order_value - $cart_total;
+                        drupal_set_message(t('You can increase Your order by %deficit to get the %method shipping discount.', array('%deficit'=>uc_currency_format($deficit), '%method' => $quote_data[$counter]['option_label'])));
+                    }
+                } else {
+                    $quote_data[0]['rate'] = $quote_data[$counter]['rate'] - ($quote_data[$counter]['rate'] * $discount->discount_percent / 100);
+                }
+                $counter ++;
+            }
+        }
+    }
+}
+
+function uc_shipping_discounts_uc_cart_total($oid = NULL){
+  $items = uc_cart_get_contents($oid);
+  $subtotal = 0;
+    if (is_array($items) && count($items) > 0) {
+      foreach ($items as $item) {
+        $data = module_invoke($item->module, 'uc_cart_display', $item);
+        if (!empty($data)) {
+          $subtotal += $data['#total'];
+        }
+      }
+    }
+    return $subtotal;
+}
+
+function uc_shipping_discounts_get_methods_list() {
+    $methods_list = [];
+    $methods = uc_quote_methods(TRUE);
+    foreach ($methods as $key => $method) {
+        $methods_list[$key] = $method['title'];
+    }
+    return $methods_list;
+}
+
+function uc_shipping_discounts_get_applied_methods_list($discount) {
+    $applied = '';
+    $discount->discount_apply_to = unserialize($discount->discount_apply_to);
+    foreach ($discount->discount_apply_to as $method) {
+        if ($method['selected']) {
+            $applied = $method['value'];
+            break;
+        }
+    }
+    return $applied;
+}
+
+function uc_shipping_discounts_get_date_time($action, $discount) {
+    $datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
+    switch ($action) {
+        case 'edit': {
+            $datetime = date('Y-m-d H:i:s', $discount->discount_until);
+            break;
+        }
+    }
+    return $datetime;
+}
+
+function uc_shipping_discounts_set_date_time($datetime) {
+    return strtotime($datetime);
+}

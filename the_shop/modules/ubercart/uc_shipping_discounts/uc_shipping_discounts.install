@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * @file
+ * Ubercart uc_shipping_discounts.module schema
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function uc_shipping_discounts_schema() {
+  $schema = array();
+
+  $schema['uc_shipping_discounts'] = array(
+    'description' => 'Ubercart Shipping discounts',
+    'fields' => array(
+      'discount_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'discount_order_value' => array(
+        'type' => 'numeric',
+        'precision' => 12,
+        'scale' => 2,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'discount_percent' => array(
+        'type' => 'numeric',
+        'precision' => 12,
+        'scale' => 2,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'discount_apply_to' => array(
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
+      'discount_method_id' => array(
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'discount_until' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'discount_enabled' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'discount_description' => array(
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('discount_id'),
+    'indexes' => array('discount_id' => array('discount_id'),
+                    'discount_order_value' => array('discount_order_value'),
+                    'discount_percent' => array('discount_percent'),
+                    'discount_method_id' => array('discount_method_id'),
+                    'discount_until' => array('discount_until'),
+                    'discount_enabled' => array('discount_enabled'),
+                )
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function uc_shipping_discounts_uninstall() {
+
+}
