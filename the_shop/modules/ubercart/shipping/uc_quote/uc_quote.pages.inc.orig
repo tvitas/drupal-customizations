@@ -76,7 +76,6 @@ function uc_quote_assemble_quotes($order) {
  *   Array of shipping quotes.
  */
 function uc_quote_action_get_quote($order, $method) {
-  $quote_data = array();
   $details = array();
   foreach ($order as $key => $value) {
     if (substr($key, 0, 9) == 'delivery_') {
@@ -103,7 +102,6 @@ function uc_quote_action_get_quote($order, $method) {
       }
     }
     $quote_data = call_user_func($method['quote']['callback'], $products, $details, $method);
-    drupal_alter('uc_quote_data', $quote_data, $order, $method);
   }
   $messages = ob_get_contents();
   ob_end_clean();

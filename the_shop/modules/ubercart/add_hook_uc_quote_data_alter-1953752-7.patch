@@ -1,0 +1,47 @@
+diff --git a/shipping/uc_quote/uc_quote.api.php b/shipping/uc_quote/uc_quote.api.php
+index 0c8211b..4235d79 100644
+--- a/shipping/uc_quote/uc_quote.api.php
++++ b/shipping/uc_quote/uc_quote.api.php
+@@ -124,5 +124,22 @@ function hook_uc_shipping_type() {
+ }
+ 
+ /**
++ * Alters quote data returned by the quote callback of a shipping method.
++ *
++ * @param $quote_data
++ *   Quote data as returned by the quote callback of the shipping method.
++ * @param $order
++ *   The order.
++ * @param $method
++ *   The shipping method.
++ *
++ * @see hook_uc_shipping_method()
++ * @see uc_quote_action_get_quote()
++ */
++function hook_uc_quote_data_alter(&$quote_data, $order, $method) {
++  // Alter $quote_data.
++}
++
++/**
+  * @} End of "addtogroup hooks".
+  */
+diff --git a/shipping/uc_quote/uc_quote.pages.inc b/shipping/uc_quote/uc_quote.pages.inc
+index e800c53..18a61f6 100644
+--- a/shipping/uc_quote/uc_quote.pages.inc
++++ b/shipping/uc_quote/uc_quote.pages.inc
+@@ -75,6 +75,7 @@ function uc_quote_assemble_quotes($order) {
+  *   Array of shipping quotes.
+  */
+ function uc_quote_action_get_quote($order, $method) {
++  $quote_data = array();
+   $details = array();
+   foreach ($order as $key => $value) {
+     if (substr($key, 0, 9) == 'delivery_') {
+@@ -101,6 +102,7 @@ function uc_quote_action_get_quote($order, $method) {
+       }
+     }
+     $quote_data = call_user_func($method['quote']['callback'], $products, $details, $method);
++    drupal_alter('uc_quote_data', $quote_data, $order, $method);
+   }
+   $messages = ob_get_contents();
+   ob_end_clean();

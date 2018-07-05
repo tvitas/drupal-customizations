@@ -74,6 +74,7 @@ function uc_shipping_discounts_uc_quote_data_alter(&$quote_data, &$order, $metho
                 ->execute()
                 ->fetchAll();
     if (!empty($discounts)) {
+        dpm($quote_data);
         foreach ($discounts as $discount) {
             $counter = 0;
             foreach ($quote_data as $qd) {

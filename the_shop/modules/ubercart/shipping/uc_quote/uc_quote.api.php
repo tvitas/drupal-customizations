@@ -124,5 +124,22 @@ function hook_uc_shipping_type() {
 }
 
 /**
+ * Alters quote data returned by the quote callback of a shipping method.
+ *
+ * @param $quote_data
+ *   Quote data as returned by the quote callback of the shipping method.
+ * @param $order
+ *   The order.
+ * @param $method
+ *   The shipping method.
+ *
+ * @see hook_uc_shipping_method()
+ * @see uc_quote_action_get_quote()
+ */
+function hook_uc_quote_data_alter(&$quote_data, $order, $method) {
+  // Alter $quote_data.
+}
+
+/**
  * @} End of "addtogroup hooks".
  */
