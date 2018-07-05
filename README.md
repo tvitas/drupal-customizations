@@ -1,10 +1,10 @@
 ## Various DRUPAL 7.x customizations
 
-- Ubercart rewritten
-- Strings by Id
-- Misc helpers
+- Ubercart custom rewritted.
+- Module Strings by Id
+- Misc helpers modules
 - Theme "The Zero"
 - Theme "The Shop"
 
-#### Unlicensed
+#### Some parts is licensed by GPL, some parts is unlicensed.
 
